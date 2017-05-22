@@ -1,0 +1,8 @@
+[package]
+name = "connect_four_gui"
+version = "0.1.0"
+authors = ["David Wallach <davidwallach2@gmail.com>"]
+
+[dependencies]
+gtk = { git = "https://github.com/gtk-rs/gtk.git", features = ["v3_16"] }
+gdk = { git = "https://github.com/gtk-rs/gdk.git" }
