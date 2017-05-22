@@ -3,403 +3,708 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
+    <property name="default_width">700</property>
+    <property name="default_height">700</property>
     <child>
       <object class="GtkFixed" id="fixed1">
         <property name="visible">True</property>
         <child>
-          <object class="GtkHBox" id="hbox2">
-            <property name="width_request">440</property>
-            <property name="height_request">212</property>
+          <object class="GtkFixed" id="fixed2">
+            <property name="width_request">200</property>
+            <property name="height_request">200</property>
             <property name="visible">True</property>
-            <property name="border_width">2</property>
             <child>
-              <object class="GtkVBox" id="vbox1">
+              <object class="GtkFixed" id="fixed3">
+                <property name="width_request">200</property>
+                <property name="height_request">200</property>
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <property name="homogeneous">True</property>
-                <child>
-                  <object class="GtkImage" id="image3">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-yes</property>
-                  </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="image2">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-no</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
                 <child>
                   <object class="GtkImage" id="image1">
+                    <property name="width_request">500</property>
+                    <property name="height_request">430</property>
                     <property name="visible">True</property>
-                    <property name="stock">gtk-no</property>
+                    <property name="pixbuf">Board.png</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox1">
+                    <property name="width_request">500</property>
+                    <property name="height_request">20</property>
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkRadioButton" id="Col1">
+                        <property name="label" translatable="yes">col1</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="relief">none</property>
+                        <property name="yalign">0.76999998092651367</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col2">
+                        <property name="label" translatable="yes">col2</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col3">
+                        <property name="label" translatable="yes">col3</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col4">
+                        <property name="label" translatable="yes">col4</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col5">
+                        <property name="label" translatable="yes">col5</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">4</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col6">
+                        <property name="label" translatable="yes">col6</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="Col7">
+                        <property name="label" translatable="yes">col7
+</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="position">6</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="03">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-yes</property>
-                  </object>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="01">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-yes</property>
-                  </object>
-                  <packing>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkImage" id="00">
-                    <property name="visible">True</property>
-                    <property name="stock">gtk-media-stop</property>
-                  </object>
-                  <packing>
-                    <property name="position">5</property>
+                    <property name="x">10</property>
+                    <property name="y">430</property>
                   </packing>
                 </child>
               </object>
               <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox2">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox3">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox4">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox5">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox6">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkVBox" id="vbox7">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">6</property>
+                <property name="y">50</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="x">1</property>
-            <property name="y">65</property>
+            <property name="x">20</property>
+            <property name="y">20</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox3">
-            <property name="width_request">443</property>
-            <property name="height_request">20</property>
+          <object class="GtkButton" id="play_btn">
+            <property name="label" translatable="yes">Play Move</property>
+            <property name="width_request">100</property>
+            <property name="height_request">40</property>
             <property name="visible">True</property>
-            <property name="border_width">3</property>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton1">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">True</property>
-                <property name="relief">half</property>
-                <property name="use_stock">True</property>
-                <property name="xalign">0.41999998688697815</property>
-                <property name="yalign">0.30000001192092896</property>
-                <property name="image_position">bottom</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton2">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">True</property>
-                <property name="xalign">0.56000000238418579</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton3">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton4">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton5">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton6">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioButton" id="radiobutton7">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="image_position">bottom</property>
-                <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="position">15</property>
-              </packing>
-            </child>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
           </object>
           <packing>
-            <property name="x">25</property>
-            <property name="y">306</property>
+            <property name="x">200</property>
+            <property name="y">550</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="label1">
-            <property name="width_request">244</property>
-            <property name="height_request">63</property>
+            <property name="width_request">200</property>
+            <property name="height_request">70</property>
             <property name="visible">True</property>
-            <property name="yalign">0.41999998688697815</property>
+            <property name="xalign">0.4699999988079071</property>
+            <property name="yalign">0.4699999988079071</property>
+            <property name="ypad">1</property>
             <property name="label" translatable="yes">Connect Four Game Server</property>
             <attributes>
-              <attribute name="scale" value="1.500000"/>
+              <attribute name="weight" value="bold"/>
+              <attribute name="foreground" value="#ffffffffffff"/>
+              <attribute name="background" value="#9090a3a3ffff"/>
+              <attribute name="scale" value="3.000000"/>
             </attributes>
           </object>
           <packing>
-            <property name="y">4</property>
+            <property name="x">150</property>
+            <property name="y">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_00">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_01">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="yalign">0.55000001192092896</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_02">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_03">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_04">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_05">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">30</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_10">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">98</property>
+            <property name="y">425</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="label2">
-            <property name="width_request">115</property>
+            <property name="width_request">100</property>
             <property name="height_request">80</property>
             <property name="visible">True</property>
-            <property name="label" translatable="yes">GameID: game4792</property>
+            <property name="yalign">0.43999999761581421</property>
+            <property name="label" translatable="yes">GameID: g2343234</property>
           </object>
           <packing>
-            <property name="x">448</property>
-            <property name="y">61</property>
+            <property name="x">550</property>
+            <property name="y">200</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="label3">
-            <property name="width_request">123</property>
-            <property name="height_request">80</property>
-            <property name="visible">True</property>
-            <property name="label" translatable="yes">Username: user1</property>
-          </object>
-          <packing>
-            <property name="x">439</property>
-            <property name="y">121</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="button1">
-            <property name="label">gtk-home</property>
             <property name="width_request">100</property>
             <property name="height_request">80</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="use_stock">True</property>
-            <property name="image_position">top</property>
+            <property name="label" translatable="yes">Username: User1</property>
           </object>
           <packing>
-            <property name="x">453</property>
-            <property name="y">203</property>
+            <property name="x">550</property>
+            <property name="y">250</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_11">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">98</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_12">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">98</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_13">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">98</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_14">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">98</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_15">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+           <packing>
+            <property name="x">98</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+          <child>
+          <object class="GtkImage" id="piece_20">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_21">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_22">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_23">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_24">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_25">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">166</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_30">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_31">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_32">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_33">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_34">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_36">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">236</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_40">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_41">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_42">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_43">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_44">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_45">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">306</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_50">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_51">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_52">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_53">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_54">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_55">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">376</property>
+            <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_60">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">425</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_61">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">355</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_62">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">285</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_63">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">red_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">215</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_64">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">147</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="piece_65">
+            <property name="width_request">55</property>
+            <property name="height_request">55</property>
+            <property name="visible">True</property>
+            <property name="pixbuf">blue_piece.png</property>
+          </object>
+          <packing>
+            <property name="x">444</property>
+            <property name="y">79</property>
           </packing>
         </child>
       </object>

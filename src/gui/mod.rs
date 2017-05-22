@@ -46,31 +46,10 @@ pub fn launch() {
 
 		// build and bring game window to view
 		println!("{}", String::from("Connect button has been clicked"));
-		let game_glade_src = include_str!("game_window_2.glade");
+		let game_glade_src = include_str!("game_window.glade");
 		let game_builder = gtk::Builder::new_from_string(game_glade_src);
 		let game_window: gtk::Window = game_builder.get_object("window1").unwrap();
 		configure_game_window(&game_window);
-
-		// let WIDTH: usize = 6;
-		// let HEIGHT: usize = 7;
-
-		// create event spaces
-		// let mut events: Vec<gtk::Image> = vec![[WIDTH]; HEIGHT]
-		// for i in range(0..WIDTH) {
-		// 	for j in range(0..HEIGHT) {
-		// 		let image 
-		// 		events.append(gtk::Image.)
-		// 	}
-		// }
-
-		// let img_00: gtk::Image = game_builder.get_object("03").unwrap();
-		// img_00.set_from_icon_name("gtk-no", 5);
-	
-		// let img_00 = gtk::Image.set_from_file("red_piece.png");
-		// let board_container: gtk::Fixed = game_builder.get_object("fixed3").unwrap();
-		// board_container.add(&img_00);
-		// img_00.set_alignment(0.0, 0.0);
-  //  		img_00.set_padding(0, 0);
 
 		game_window.show_all();
 		// app_window.close();
