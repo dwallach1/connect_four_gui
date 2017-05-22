@@ -1,7 +1,6 @@
 use gtk::{self};
 use gtk::traits::*;
-// use gtk::prelude::*;
-
+use gtk::prelude::*;
 
 //  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
 
@@ -28,6 +27,64 @@ fn configure_game_window(window: &gtk::Window) {
 } 
 
 
+fn build_game_window() {
+	let game_glade_src = include_str!("game_window.glade");
+	let game_builder = gtk::Builder::new_from_string(game_glade_src);
+	let game_window: gtk::Window = game_builder.get_object("window1").unwrap();
+	configure_game_window(&game_window);
+
+	// add radio buttons
+	let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+    let hbox_inner = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+    hbox_inner.set_spacing(40);
+
+    let base = gtk::RadioButton::new_with_label_from_widget(None, "-1");
+    let col_1 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "1");
+    let col_2 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "2");
+    let col_3 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "3");
+    let col_4 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "4");
+    let col_5 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "5");
+    let col_6 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "6");
+    let col_7 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "7");
+ 
+    hbox_inner.pack_start(&col_1, false, false, 0);
+    hbox_inner.pack_start(&col_2, false, false, 0);
+    hbox_inner.pack_start(&col_3, false, false, 0);
+    hbox_inner.pack_start(&col_4, false, false, 0);
+    hbox_inner.pack_start(&col_5, false, false, 0);
+    hbox_inner.pack_start(&col_6, false, false, 0);
+    hbox_inner.pack_start(&col_7, false, false, 0);
+ 
+    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
+    
+    hbox.pack_end(&hbox_inner, false, false, 0);
+    let container: gtk::Fixed = game_builder.get_object("fixed1").unwrap();
+    container.add(&hbox);
+    hbox.set_margin_top(500);
+    hbox.set_margin_bottom(50);
+    hbox.set_margin_start(40);
+    hbox.set_margin_end(150);
+
+	game_window.show_all();
+
+
+	let play_btn: gtk::Button = game_builder.get_object("play_btn").unwrap();
+	play_btn.connect_clicked(move |_| {
+
+		for button in &radio_button_group {
+			if button.get_active() {
+				// play the move here
+				// play_move(int(button.get_label().unwrap());
+				// add functionality when we connect oData library and game functionality
+				println!("{:?}", button.get_label().unwrap());
+				
+			}
+		}
+		println!("{:?}", String::from("passed out of toggle loop"));
+	});
+
+}
+
 
 pub fn launch() {     
 
@@ -43,17 +100,9 @@ pub fn launch() {
 	// add closure to connect button to open new (game) screen
 	let connect_btn: gtk::Button = builder.get_object("button1").unwrap();
 	connect_btn.connect_clicked(move |_| {
-
 		// build and bring game window to view
+		build_game_window();
 		println!("{}", String::from("Connect button has been clicked"));
-		let game_glade_src = include_str!("game_window.glade");
-		let game_builder = gtk::Builder::new_from_string(game_glade_src);
-		let game_window: gtk::Window = game_builder.get_object("window1").unwrap();
-		configure_game_window(&game_window);
-
-		game_window.show_all();
-		// app_window.close();
-	    
 	});
 
 	// add closure to quit application when this button is pressed
@@ -67,3 +116,4 @@ pub fn launch() {
 	app_window.show_all(); 
 	gtk::main();	
 }
+
