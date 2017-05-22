@@ -6,7 +6,7 @@ use gtk::prelude::*;
 
 fn configure_window(window: &gtk::Window) {
 	window.set_title("Connect Four Game Server");
-	let(width, height) = (600, 500);
+	let(width, height) = (500, 400);
 	window.set_default_size(width,height);  
 	window.connect_delete_event(|_,_| {
     	gtk::main_quit();
@@ -17,7 +17,7 @@ fn configure_window(window: &gtk::Window) {
 
 fn configure_game_window(window: &gtk::Window) {
 	window.set_title("Connect Four Game Server");
-	let(width, height) = (800, 650);
+	let(width, height) = (750, 650);
 	window.set_default_size(width,height);  
 	window.connect_delete_event(|_,_| {
     	gtk::main_quit();
@@ -26,6 +26,16 @@ fn configure_game_window(window: &gtk::Window) {
 	});
 } 
 
+// fn begin_turn() {
+	
+// }
+
+fn end_turn() {
+	let game_glade_src = include_str!("game_window.glade");
+	let game_builder = gtk::Builder::new_from_string(game_glade_src);
+	let play_btn: gtk::Button = game_builder.get_object("play_btn").unwrap();
+	play_btn.hide();
+}
 
 fn build_game_window() {
 	let game_glade_src = include_str!("game_window.glade");
@@ -36,7 +46,7 @@ fn build_game_window() {
 	// add radio buttons
 	let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     let hbox_inner = gtk::Box::new(gtk::Orientation::Horizontal, 0);
-    hbox_inner.set_spacing(40);
+    hbox_inner.set_spacing(34);
 
     let base = gtk::RadioButton::new_with_label_from_widget(None, "-1");
     let col_1 = gtk::RadioButton::new_with_label_from_widget(Some(&base), "1");
@@ -62,25 +72,35 @@ fn build_game_window() {
     container.add(&hbox);
     hbox.set_margin_top(500);
     hbox.set_margin_bottom(50);
-    hbox.set_margin_start(40);
+    hbox.set_margin_start(50);
     hbox.set_margin_end(150);
 
 	game_window.show_all();
 
-
 	let play_btn: gtk::Button = game_builder.get_object("play_btn").unwrap();
 	play_btn.connect_clicked(move |_| {
-
 		for button in &radio_button_group {
 			if button.get_active() {
 				// play the move here
 				// play_move(int(button.get_label().unwrap());
 				// add functionality when we connect oData library and game functionality
 				println!("{:?}", button.get_label().unwrap());
-				
+				end_turn();
+				break;
+				// let img_name = "piece_" + str(x) + str(y) ;
+				// ler curr_img = game_builder.get_object(img_name).unwrap();
+				// if player1 { curr_img.set_image("red_piece.png") }
+				// else { curr_img.set_image("blue_piece.png") }	
 			}
-		}
+		}		
 		println!("{:?}", String::from("passed out of toggle loop"));
+	});
+
+
+	let quit_btn: gtk::Button = game_builder.get_object("button3").unwrap();
+	quit_btn.connect_clicked(move |_| {
+		gtk::main_quit();
+    	gtk::Inhibit(false);
 	});
 
 }

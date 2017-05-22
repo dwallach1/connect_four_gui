@@ -15,8 +15,8 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkFixed" id="fixed3">
-                <property name="width_request">200</property>
-                <property name="height_request">200</property>
+                <property name="width_request">500</property>
+                <property name="height_request">430</property>
                 <property name="visible">True</property>
                 <child>
                   <object class="GtkImage" id="image1">
@@ -47,7 +47,7 @@
             <property name="receives_default">True</property>
           </object>
           <packing>
-            <property name="x">200</property>
+            <property name="x">220</property>
             <property name="y">550</property>
           </packing>
         </child>
@@ -57,13 +57,13 @@
             <property name="height_request">70</property>
             <property name="visible">True</property>
             <property name="xalign">0.4699999988079071</property>
-            <property name="yalign">0.4699999988079071</property>
+            <property name="yalign">0.37000000476837158</property>
             <property name="ypad">1</property>
             <property name="label" translatable="yes">Connect Four Game Server</property>
             <attributes>
               <attribute name="weight" value="bold"/>
-              <attribute name="foreground" value="#ffffffffffff"/>
-              <attribute name="background" value="#9090a3a3ffff"/>
+              <attribute name="foreground" value="#3333bbbbffff"/>
+              <attribute name="background" value="#ffffffffffff"/>
               <attribute name="scale" value="3.000000"/>
             </attributes>
           </object>
@@ -155,31 +155,6 @@
           <packing>
             <property name="x">98</property>
             <property name="y">425</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label2">
-            <property name="width_request">100</property>
-            <property name="height_request">80</property>
-            <property name="visible">True</property>
-            <property name="yalign">0.43999999761581421</property>
-            <property name="label" translatable="yes">GameID: g2343234</property>
-          </object>
-          <packing>
-            <property name="x">550</property>
-            <property name="y">200</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label3">
-            <property name="width_request">100</property>
-            <property name="height_request">80</property>
-            <property name="visible">True</property>
-            <property name="label" translatable="yes">Username: User1</property>
-          </object>
-          <packing>
-            <property name="x">550</property>
-            <property name="y">250</property>
           </packing>
         </child>
         <child>
@@ -600,6 +575,80 @@
           <packing>
             <property name="x">444</property>
             <property name="y">79</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVButtonBox" id="vbuttonbox1">
+            <property name="width_request">150</property>
+            <property name="height_request">200</property>
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">GameID: g12332</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Username: User1
+</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Messsage Opponent </property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button2">
+                <property name="label" translatable="yes">Settings
+</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button3">
+                <property name="label" translatable="yes">Quit</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="x">570</property>
+            <property name="y">150</property>
           </packing>
         </child>
       </object>
