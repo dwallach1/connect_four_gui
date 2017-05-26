@@ -39,69 +39,82 @@ fn end_turn() {
 	play_btn.hide();
 }
 
-fn build_game_window() {
+fn build_game_window(k: i32, height: i32, width: i32) {
 	let game_glade_src = include_str!("test.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
 	configure_game_window(&game_window);
 
-	let k = 6;
 	let game_board = Grid::new();
-	game_board.set_column_spacing(35);
-	game_board.set_row_spacing(35);
-
-	for i in 0..k {
-		for j in 0..k {
+	game_board.set_name("game_grid");
+	// game_board.set_column_spacing(35);
+	// game_board.set_row_spacing(35);
+	game_board.set_row_homogeneous(true);
+	game_board.set_column_homogeneous(true);
+	for i in 0..width {
+		for j in 0..height {
 			let image = Image::new_from_file("empty.png");
+			let mut name = i.to_string();
+			name.push_str(",");
+			name.push_str(&j.to_string());
+			image.set_name(&name);
 			game_board.attach(&image, i, j, 1, 1);
 		}
 	}
 
-	let play_button = Button::new_with_label("Play");
-
 	// add radio buttons
-    let radio_box = Box::new(Orientation::Horizontal, 0);
+    let mut radio_vec = vec![];
     let base = RadioButton::new_with_label_from_widget(None, "-1");
-    for i in 1..k+1 {
+    for i in 1..width+1 {
     	let btn = RadioButton::new_with_label_from_widget(Some(&base), &i.to_string());
-    	radio_box.pack_start(&btn, false, false, 25);
+    	btn.set_halign(Align::Center);
+    	game_board.attach(&btn, i-1, height+1, 1, 1);
+    	radio_vec.push(btn);
     }
+
+	let play_button = Button::new_with_label("Play");
+	play_button.set_name("play_btn");
+
+	play_button.connect_clicked(move |_| {
+		for button in &radio_vec {
+			if button.get_active() {
+				// play the move here
+				// play_move(int(button.get_label().unwrap());
+				// add functionality when we connect oData library and game functionality
+				println!("{:?}", button.get_label().unwrap());
+				end_turn();
+				break;
+				// let img_name = "piece_" + str(x) + str(y) ;
+				// ler curr_img = game_builder.get_object(img_name).unwrap();
+				// if player1 { curr_img.set_image("red_piece.png") }
+				// else { curr_img.set_image("blue_piece.png") }	
+			}
+		}		
+		println!("{:?}", String::from("passed out of toggle loop"));
+	});
 
 	let game_box: Box = game_builder.get_object("game_box").unwrap();
 	game_box.pack_start(&game_board, true, true, 20);
-	game_box.pack_start(&radio_box, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
  
  //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
-    
- //    hbox.pack_end(&hbox_inner, false, false, 0);
- //    let container: Fixed = game_builder.get_object("fixed1").unwrap();
- //    container.add(&hbox);
- //    hbox.set_margin_top(500);
- //    hbox.set_margin_bottom(50);
- //    hbox.set_margin_start(50);
- //    hbox.set_margin_end(150);
+
+ 	let side_box: Box = game_builder.get_object("side_box").unwrap();
+ 	let mut k_string = "You need to connect ".to_string();
+ 	k_string.push_str(&k.to_string());
+ 	k_string.push_str(" to win!");
+ 	let k_label = Label::new(Some(k_string.as_str()));
+ 	side_box.pack_start(&k_label, true, true, 0);
 
 	game_window.show_all();
 
+	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
+	
+	// blue_thing.clear();
+
+
 	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
-	// play_btn.connect_clicked(move |_| {
-	// 	for button in &radio_button_group {
-	// 		if button.get_active() {
-	// 			// play the move here
-	// 			// play_move(int(button.get_label().unwrap());
-	// 			// add functionality when we connect oData library and game functionality
-	// 			println!("{:?}", button.get_label().unwrap());
-	// 			end_turn();
-	// 			break;
-	// 			// let img_name = "piece_" + str(x) + str(y) ;
-	// 			// ler curr_img = game_builder.get_object(img_name).unwrap();
-	// 			// if player1 { curr_img.set_image("red_piece.png") }
-	// 			// else { curr_img.set_image("blue_piece.png") }	
-	// 		}
-	// 	}		
-	// 	println!("{:?}", String::from("passed out of toggle loop"));
-	// });
+	
 
 
 	let quit_btn: Button = game_builder.get_object("quit_button").unwrap();
@@ -109,7 +122,6 @@ fn build_game_window() {
 		main_quit();
     	Inhibit(false);
 	});
-
 }
 
 
@@ -128,7 +140,7 @@ pub fn launch() {
 	let connect_btn: Button = builder.get_object("button1").unwrap();
 	connect_btn.connect_clicked(move |_| {
 		// build and bring game window to view
-		build_game_window();
+		build_game_window(8, 7, 8);
 		println!("{}", String::from("Connect button has been clicked"));
 	});
 
