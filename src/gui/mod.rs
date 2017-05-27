@@ -8,7 +8,7 @@ use gtk::*;
 
 fn configure_window(window: &Window) {
 	window.set_title("Connect Four Game Server");
-	let(width, height) = (500, 400);
+	let(width, height) = (500, 200);
 	window.set_default_size(width,height);  
 	window.connect_delete_event(|_,_| {
     	main_quit();
@@ -40,7 +40,7 @@ fn end_turn() {
 }
 
 fn build_game_window(k: i32, height: i32, width: i32) {
-	let game_glade_src = include_str!("test.glade");
+	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
 	configure_game_window(&game_window);
@@ -89,7 +89,7 @@ fn build_game_window(k: i32, height: i32, width: i32) {
 				// if player1 { curr_img.set_image("red_piece.png") }
 				// else { curr_img.set_image("blue_piece.png") }	
 			}
-		}		
+		}
 		println!("{:?}", String::from("passed out of toggle loop"));
 	});
 
@@ -130,29 +130,45 @@ pub fn launch() {
 	// first step: initalize GTK
 	init().unwrap_or_else(|_| panic!("Panic, unable to initalize GTK!"));	
 
-	// initalize main window
-	let glade_src = include_str!("app_window.glade");
-	let builder = Builder::new_from_string(glade_src);
-	let app_window: Window = builder.get_object("window1").unwrap();
-	configure_window(&app_window);
+	// initalize server window
 
-	// add closure to connect button to open new (game) screen
-	let connect_btn: Button = builder.get_object("button1").unwrap();
-	connect_btn.connect_clicked(move |_| {
-		// build and bring game window to view
-		build_game_window(8, 7, 8);
-		println!("{}", String::from("Connect button has been clicked"));
-	});
+	let server_src = include_str!("server_window.glade");
+	let builder = Builder::new_from_string(server_src);
+	let server_window: Window = builder.get_object("server_window").unwrap();
+	configure_window(&server_window);
 
 	// add closure to quit application when this button is pressed
-	let quit_btn: Button = builder.get_object("button2").unwrap();
+	let quit_btn: Button = builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
 		main_quit();
     	Inhibit(false);
 	});
 
-	// bring the window to view and start the application
-	app_window.show_all(); 
-	main();	
+	server_window.show_all();
+
+	// // initalize main window
+	// let glade_src = include_str!("app_window.glade");
+	// let builder = Builder::new_from_string(glade_src);
+	// let app_window: Window = builder.get_object("window1").unwrap();
+	// configure_window(&app_window);
+
+	// // add closure to connect button to open new (game) screen
+	// let connect_btn: Button = builder.get_object("button1").unwrap();
+	// connect_btn.connect_clicked(move |_| {
+	// 	// build and bring game window to view
+	// 	build_game_window(8, 4, 4);
+	// 	println!("{}", String::from("Connect button has been clicked"));
+	// });
+
+	// // add closure to quit application when this button is pressed
+	// let quit_btn: Button = builder.get_object("button2").unwrap();
+	// quit_btn.connect_clicked(move |_| {
+	// 	main_quit();
+ //    	Inhibit(false);
+	// });
+
+	// // bring the window to view and start the application
+	// app_window.show_all(); 
+	main();
 }
 
