@@ -1,7 +1,5 @@
-// use gtk::{self};
-// use gtk::traits::*;
-// use gtk::prelude::*;
 use gtk::*;
+use regex::Regex;
 
 
 //  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
@@ -124,6 +122,9 @@ fn build_game_window(k: i32, height: i32, width: i32) {
 	});
 }
 
+fn connect_to_server() {
+	
+}
 
 pub fn launch() {     
 
@@ -136,6 +137,23 @@ pub fn launch() {
 	let builder = Builder::new_from_string(server_src);
 	let server_window: Window = builder.get_object("server_window").unwrap();
 	configure_window(&server_window);
+
+	// add closure to connect button to open new (game) screen
+	let connect_btn: Button = builder.get_object("connect_btn").unwrap();
+	let ip_entry: Entry = builder.get_object("ip_entry").unwrap();
+	let re = Regex::new(r"^\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b$").unwrap();
+	connect_btn.connect_clicked(move |_| {
+		if let Some(text) = ip_entry.get_text() {
+			if re.is_match(&text) {
+				println!("{}", "YAY");
+			} else {
+				println!("{}", "NO");				
+			}
+		} else {
+			println!("{}", "nothing in box!");
+		}
+		println!("{}", String::from("Connect button has been clicked"));
+	});
 
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = builder.get_object("cancel_btn").unwrap();
@@ -158,13 +176,6 @@ pub fn launch() {
 	// 	// build and bring game window to view
 	// 	build_game_window(8, 4, 4);
 	// 	println!("{}", String::from("Connect button has been clicked"));
-	// });
-
-	// // add closure to quit application when this button is pressed
-	// let quit_btn: Button = builder.get_object("button2").unwrap();
-	// quit_btn.connect_clicked(move |_| {
-	// 	main_quit();
- //    	Inhibit(false);
 	// });
 
 	// // bring the window to view and start the application
