@@ -6,3 +6,4 @@ authors = ["David Wallach <davidwallach2@gmail.com>"]
 [dependencies]
 gtk = { git = "https://github.com/gtk-rs/gtk.git", features = ["v3_16"] }
 gdk = { git = "https://github.com/gtk-rs/gdk.git" }
+regex = "0.2"
