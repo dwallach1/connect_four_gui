@@ -1,4 +1,7 @@
 use gtk::*;
+use hyper::Client;                     
+use hyper::status::StatusCode;         
+use serde_json::{Value, from_reader};  
 use regex::Regex;
 
 
@@ -31,15 +34,32 @@ fn configure_game_window(window: &Window) {
 // }
 
 fn end_turn() {
-	let game_glade_src = include_str!("game_window.glade");
-	let game_builder = Builder::new_from_string(game_glade_src);
-	let play_btn: Button = game_builder.get_object("play_btn").unwrap();
-	play_btn.hide();
+	// let game_glade_src = include_str!("game_window.glade");
+	// let game_builder = Builder::new_from_string(game_glade_src);
+	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
+	// play_btn.hide();
+}
+
+
+// fn build_join_game_window(game_ids: Vec<String>) {
+fn build_join_game_window() {
+	let select_src = include_str!("selection_window.glade");
+	let join_game_builder = Builder::new_from_string(select_src);
+	let combo_box: ComboBoxText = join_game_builder.get_object("existing_combo").unwrap();
+
+	let window: Window = join_game_builder.get_object("selection_window").unwrap();
+	window.show_all();
+	// let mut i = 0;
+	// for g in game_ids {
+	// 	combo_box.append(i, &g);
+	// 	i+=1;
+	// }
 }
 
 fn build_game_window(k: i32, height: i32, width: i32) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
+	println!("1");
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
 	configure_game_window(&game_window);
 
@@ -91,12 +111,14 @@ fn build_game_window(k: i32, height: i32, width: i32) {
 		println!("{:?}", String::from("passed out of toggle loop"));
 	});
 
+	println!("2");
+
 	let game_box: Box = game_builder.get_object("game_box").unwrap();
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
  
  //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
-
+    println!("3");
  	let side_box: Box = game_builder.get_object("side_box").unwrap();
  	let mut k_string = "You need to connect ".to_string();
  	k_string.push_str(&k.to_string());
@@ -115,15 +137,35 @@ fn build_game_window(k: i32, height: i32, width: i32) {
 	
 
 
-	let quit_btn: Button = game_builder.get_object("quit_button").unwrap();
+	println!("4");
+	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
+	println!("5");
+
 	quit_btn.connect_clicked(move |_| {
 		main_quit();
     	Inhibit(false);
 	});
 }
 
-fn connect_to_server(ip_addr: &str) -> Result<(), String> {
-	Ok(())
+
+fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
+	let client = Client::new();
+	let mut url = "http://".to_string();
+	url.push_str(ip_addr);
+	url.push_str("/api/connect_four.svc/Games");
+	println!("{}", url);
+    let response = client.get(&url).send().unwrap();
+    if response.status == StatusCode::Ok {
+	    // Parse JSON
+	    let games: Vec<Value> = from_reader(response).expect("Unable to parse response!");
+	    let mut game_ids = vec![];
+	    for g in games {
+	    	game_ids.push(g["id"].to_string());
+	    }
+	    Ok(game_ids)
+    } else {
+    	Err("Error connecting to server.")
+    }
 }
 
 pub fn launch() {     
@@ -146,8 +188,13 @@ pub fn launch() {
 	connect_btn.connect_clicked(move |_| {
 		if let Some(text) = ip_entry.get_text() {
 			if re.is_match(&text) {
-				// connect_to_server();
-				println!("{}", "YAY");
+				let game_ids = connect_to_server(&text);
+				// match game_ids {
+				// 	Ok(g_ids) => build_join_game_window(g_ids),
+				// 	Err(_) => {
+				// 		warning_label.set_text("Error retrieving current games");
+				// 	}
+				// }
 			} else {
 				warning_label.set_text("Please enter a valid IP address ie 127.0.0.1:8080");
 			}
