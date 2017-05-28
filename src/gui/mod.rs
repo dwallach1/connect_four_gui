@@ -122,8 +122,8 @@ fn build_game_window(k: i32, height: i32, width: i32) {
 	});
 }
 
-fn connect_to_server() {
-	
+fn connect_to_server(ip_addr: &str) -> Result<(), String> {
+	Ok(())
 }
 
 pub fn launch() {     
@@ -141,16 +141,18 @@ pub fn launch() {
 	// add closure to connect button to open new (game) screen
 	let connect_btn: Button = builder.get_object("connect_btn").unwrap();
 	let ip_entry: Entry = builder.get_object("ip_entry").unwrap();
+	let warning_label: Label = builder.get_object("warning_label").unwrap();
 	let re = Regex::new(r"^\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b$").unwrap();
 	connect_btn.connect_clicked(move |_| {
 		if let Some(text) = ip_entry.get_text() {
 			if re.is_match(&text) {
+				// connect_to_server();
 				println!("{}", "YAY");
 			} else {
-				println!("{}", "NO");				
+				warning_label.set_text("Please enter a valid IP address ie 127.0.0.1:8080");
 			}
 		} else {
-			println!("{}", "nothing in box!");
+			warning_label.set_text("Nothing in box-o!");
 		}
 		println!("{}", String::from("Connect button has been clicked"));
 	});
