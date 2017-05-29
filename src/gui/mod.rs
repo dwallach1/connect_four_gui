@@ -58,8 +58,39 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 		Ok(response) => Ok(response),
 		Err(_) => Err("Could not retrieve game with game id."),
 	}
+}
 
+fn update_board_gui(height: usize, board: &str, board_grid: &Grid) {
 
+	let mut columns = vec![];
+
+	let mut board_cp = board.clone().to_string();
+
+	while board_cp.len() > height {
+		let a = board_cp.split_off(height);
+		columns.push(board_cp);
+		board_cp = a;
+	}
+
+	columns.push(board_cp);
+
+	for col_index in 0 .. columns.len() {
+		let col = columns[col_index].clone();
+		println!("{}",col);
+		for (row_index, c) in col.chars().enumerate() {
+			println!("c: {}", c);
+			println!("col_index: {}", col_index);
+			println!("row_index: {}", row_index);
+			println!("final product: {}", height-row_index-1);
+			if c == '1' {
+				let blue_piece = Image::new_from_file("blue_piece.png");
+				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
+			} else if c == '2' {
+				let red_piece = Image::new_from_file("red_piece.png");
+				board_grid.attach(&red_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
+			}
+		}
+	}
 }
 
 fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
@@ -68,6 +99,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
 
+	//TODO: display valid games only
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
@@ -84,10 +116,11 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 						//parse JSON
 						let game_value: Value = from_reader(gi).expect("Unable to parse response!");
 						
-						let k = i32::from_str(&game_value["k"].to_string()).unwrap();
-						let height = i32::from_str(&game_value["height"].to_string()).unwrap();
-						let width = i32::from_str(&game_value["width"].to_string()).unwrap();
-						build_game_window(k, height, width, &game_id, Player::Two, ip_addr.clone());
+						let k = usize::from_str(&game_value["k"].to_string()).unwrap();
+						let height = usize::from_str(&game_value["height"].to_string()).unwrap();
+						let width = usize::from_str(&game_value["width"].to_string()).unwrap();
+						let board = &game_value["board"].to_string();
+						build_game_window(k, height, width, board, &game_id, Player::Two, ip_addr.clone());
 					}, 
 					Err(_) => {
 						println!("Error getting game dab");
@@ -110,7 +143,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	selection_window.show_all();
 }
 
-fn build_game_window(k: i32, height: i32, width: i32, gid: &str, pid: Player, ip_addr: String) {
+fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &str, pid: Player, ip_addr: String) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	println!("1");
@@ -119,8 +152,7 @@ fn build_game_window(k: i32, height: i32, width: i32, gid: &str, pid: Player, ip
 
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
-	// game_board.set_column_spacing(35);
-	// game_board.set_row_spacing(35);
+
 	game_board.set_row_homogeneous(true);
 	game_board.set_column_homogeneous(true);
 	for i in 0..width {
@@ -130,7 +162,7 @@ fn build_game_window(k: i32, height: i32, width: i32, gid: &str, pid: Player, ip
 			name.push_str(",");
 			name.push_str(&j.to_string());
 			image.set_name(&name);
-			game_board.attach(&image, i, j, 1, 1);
+			game_board.attach(&image, i as i32, j as i32, 1, 1);
 		}
 	}
 
@@ -140,7 +172,7 @@ fn build_game_window(k: i32, height: i32, width: i32, gid: &str, pid: Player, ip
     for i in 1..width+1 {
     	let btn = RadioButton::new_with_label_from_widget(Some(&base), &i.to_string());
     	btn.set_halign(Align::Center);
-    	game_board.attach(&btn, i-1, height+1, 1, 1);
+    	game_board.attach(&btn, (i-1) as i32, (height+1) as i32, 1, 1);
     	radio_vec.push(btn);
     }
 
@@ -177,7 +209,8 @@ fn build_game_window(k: i32, height: i32, width: i32, gid: &str, pid: Player, ip
  	k_string.push_str(" to win!");
  	let k_label = Label::new(Some(k_string.as_str()));
  	side_box.pack_start(&k_label, true, true, 0);
-
+ 	println!("height0{}", board);
+ 	update_board_gui(height, &board[1..board.len()-1], &game_board);
 	game_window.show_all();
 
 	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
