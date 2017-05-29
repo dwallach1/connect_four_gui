@@ -14,29 +14,6 @@ pub enum Player {
 	Two,
 }
 
-//  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
-fn configure_window(window: &Window) {
-	window.set_title("Connect Four Game Server");
-	let(width, height) = (500, 200);
-	window.set_default_size(width,height);  
-	window.connect_delete_event(|_,_| {
-    	main_quit();
-    	Inhibit(false)
-    	
-	});
-} 
-
-fn configure_game_window(window: &Window) {
-	window.set_title("Connect Four Game Server");
-	let(width, height) = (750, 650);
-	window.set_default_size(width,height);  
-	window.connect_delete_event(|_,_| {
-    	main_quit();
-    	Inhibit(false)
-    	
-	});
-} 
-
 fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str, play_btn: &Button) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
@@ -48,8 +25,6 @@ fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str, play_btn: &Butto
 			sleep(Duration::new(20, 0));
 		} else { break; }
 	}
-	// let game_glade_src = include_str!("game_window.glade");
-	// let game_builder = Builder::new_from_string(game_glade_src);
 	play_btn.set_sensitive(true);
 }
 
@@ -83,9 +58,6 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 
 	// raise error if boards are the same AKA move was not played
 	assert_eq!(false, post_board == prior_board);
-
-
-
 }
 
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
@@ -185,7 +157,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
-	configure_game_window(&game_window);
 
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
@@ -300,7 +271,6 @@ pub fn launch() {
 	let server_src = include_str!("server_window.glade");
 	let builder = Builder::new_from_string(server_src);
 	let server_window: Window = builder.get_object("server_window").unwrap();
-	configure_window(&server_window);
 
 	// add closure to connect button to open new (game) screen
 	let connect_btn: Button = builder.get_object("connect_btn").unwrap();
