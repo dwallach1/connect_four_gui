@@ -4,10 +4,8 @@ use hyper::client::Response;
 use hyper::status::StatusCode;         
 use serde_json::{Value, from_reader};  
 use regex::Regex;
-use std::io::Read;
 use std::str::FromStr;
 
-// is each game a thread ?? if so this will work
 use std::time::Duration;
 use std::thread::sleep;
 
@@ -98,8 +96,6 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 
 fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
 
-	// do we want to make a connection to the server to ensure that it is 
-	// the one from the server ?? 
 	let mut columns = vec![];
 	let mut board_cp = board.clone().to_string();
 
@@ -137,7 +133,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
 
-	//TODO: display valid games only
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
@@ -155,7 +150,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 			},
 		}
 	});
-
 
 
 	// add closure to quit application when this button is pressed
@@ -223,8 +217,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_box: Box = game_builder.get_object("game_box").unwrap();
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
- 
- //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
 
  	let side_box: Box = game_builder.get_object("side_box").unwrap();
  	let mut k_string = "You need to connect ".to_string();
@@ -244,9 +236,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 			if button.get_active() {
 				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
 				play_move(col, g_id, &ip_addr.clone());
-				// update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
 				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
-				// poll_server(board, );
 				play_btn.set_sensitive(false);
 				break;
 			}
@@ -269,9 +259,7 @@ fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 	url.push_str(ip_addr);
 	url.push_str("/api/connect_four.svc/Games");
 	println!("{}", url);
-	// let mut res_string = String::new();
-    let response_result = client.get(&url).send();//.read_to_string(&mut res_string).unwrap();
-    // println!("Result: {}", res_string);
+    let response_result = client.get(&url).send();
 
     match response_result {
     	Ok(response) => {
