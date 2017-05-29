@@ -44,11 +44,11 @@ fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	loop {
-		let response = client.get(&url).send().unwrap();
-		let server_board = response["board"];
-		if curr_board = server_board {
+		let response = client.get(url).send().unwrap();
+		let data: Value = from_reader(response).expect("Unable to parse response!");
+		let server_board = data["board"].as_str().expect("Unable to parse id!");  
+		if curr_board == server_board {
 			sleep(Duration::new(20, 0));
-			i += 1;
 		} else { break; }
 	}
 }
@@ -59,15 +59,12 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	// tell server to create new game
 	let client = Client::new();                                 
 	// get custom URL      
-	let url = &format!("http://{}/api/connect_four.svc/play_move", ip_addr);
-	// let mut url = "http://".to_string();
-	// url.push_str(ip_addr);
-	// url.push_str("/api/connect_four.svc/play_move"); 
+	let post_url = &format!("http://{}/api/connect_four.svc/play_move", ip_addr);
 	let value = json!({                                                             
 	    "id": id,                                                                   
 	    "move": col                                                                  
 	});                                                                             
-	client.post(&url).body(&value.to_string()).send().unwrap();
+	client.post(post_url).body(&value.to_string()).send().unwrap();
 	println!("playing move col: {}, id: {}", col, id);
 	  
 	// Check that the move was actually played      
@@ -158,6 +155,8 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 
+
+
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
@@ -245,16 +244,13 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	play_button.connect_clicked(move |_| {
 		for button in &radio_vec {
 			if button.get_active() {
-				let col = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
-				let id = gid.parse::<usize>.unwrap();
-				play_move(col, id, &ip_addr);
-				update_board(&game_window, &game_builder, id, ip_addr);
-				// play_button.set_sensitive(false);
+				// let col = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
+				// let id = String::from(gid).parse::<usize>.unwrap();
+				// play_move(col, gameid, &ip_addr);
+				// // update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
+				// // play_button.set_sensitive(false);
 				// poll_server()
-				break;
-				// play the move here
-				// play_move(int(button.get_label().unwrap());
-				// add functionality when we connect oData library and game functionality
+				// break;
 			}
 		}
 		println!("{:?} Done playing", pid);
