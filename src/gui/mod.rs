@@ -193,8 +193,8 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
  	let k_label = Label::new(Some(k_string.as_str()));
  	side_box.pack_start(&k_label, true, true, 0);
  	println!("height0{}", board);
- 	// update_board_gui(height, &board[1..board.len()-1], &game_board);
- 	update_board_gui(height, "120210120", &game_board, &radio_vec);
+ 	update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
+ 	// update_board_gui(height, "120210120", &game_board, &radio_vec);
 	game_window.show_all();
 
 	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
