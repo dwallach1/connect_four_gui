@@ -60,19 +60,15 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	}
 }
 
-fn update_board_gui(height: usize, board: &str, board_grid: &Grid) {
-
+fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
 	let mut columns = vec![];
-
 	let mut board_cp = board.clone().to_string();
 
-	while board_cp.len() > height {
+	while board_cp.len() >= height {
 		let a = board_cp.split_off(height);
 		columns.push(board_cp);
 		board_cp = a;
 	}
-
-	columns.push(board_cp);
 
 	for col_index in 0 .. columns.len() {
 		let col = columns[col_index].clone();
@@ -88,6 +84,9 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid) {
 			} else if c == '2' {
 				let red_piece = Image::new_from_file("red_piece.png");
 				board_grid.attach(&red_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
+			}
+			if row_index == height - 1 && c != '0' {
+				radio_vec[col_index].set_sensitive(false);
 			}
 		}
 	}
@@ -110,23 +109,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		match active_txt {
 			Some(game_id) => {
 				println!("{}", game_id);
-				let game_info = get_game(&game_id, &ip_addr);
-				match game_info {
-					Ok(gi) => {
-						//parse JSON
-						let game_value: Value = from_reader(gi).expect("Unable to parse response!");
-						
-						let k = usize::from_str(&game_value["k"].to_string()).unwrap();
-						let height = usize::from_str(&game_value["height"].to_string()).unwrap();
-						let width = usize::from_str(&game_value["width"].to_string()).unwrap();
-						let board = &game_value["board"].to_string();
-						build_game_window(k, height, width, board, &game_id, Player::Two, ip_addr.clone());
-					}, 
-					Err(_) => {
-						println!("Error getting game dab");
-					}
-				}
-				// build_game_window()
+				build_game_window(&game_id, Player::Two, ip_addr.clone());
 			},
 			None => {
 				println!("User did not select game");
@@ -143,7 +126,22 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	selection_window.show_all();
 }
 
-fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &str, pid: Player, ip_addr: String) {
+fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
+	let game_info_res = get_game(&game_id, &ip_addr);
+	if game_info_res.is_err() {
+		println!("Error getting game dab");
+		return;
+	}
+	let game_info = game_info_res.unwrap();
+
+	//parse JSON
+	let game_value: Value = from_reader(game_info).expect("Unable to parse response!");
+
+	let k = usize::from_str(&game_value["k"].to_string()).unwrap();
+	let height = usize::from_str(&game_value["height"].to_string()).unwrap();
+	let width = usize::from_str(&game_value["width"].to_string()).unwrap();
+	let board = &game_value["board"].to_string();
+	
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	println!("1");
@@ -172,6 +170,7 @@ fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &s
     for i in 1..width+1 {
     	let btn = RadioButton::new_with_label_from_widget(Some(&base), &i.to_string());
     	btn.set_halign(Align::Center);
+    	btn.set_name(&i.to_string());
     	game_board.attach(&btn, (i-1) as i32, (height+1) as i32, 1, 1);
     	radio_vec.push(btn);
     }
@@ -179,6 +178,31 @@ fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &s
 	let play_button = Button::new_with_label("Play");
 	play_button.set_name("play_btn");
 
+	
+
+	let game_box: Box = game_builder.get_object("game_box").unwrap();
+	game_box.pack_start(&game_board, true, true, 20);
+	game_box.pack_start(&play_button, false, true, 20);
+ 
+ //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
+    println!("3");
+ 	let side_box: Box = game_builder.get_object("side_box").unwrap();
+ 	let mut k_string = "You need to connect ".to_string();
+ 	k_string.push_str(&k.to_string());
+ 	k_string.push_str(" to win!");
+ 	let k_label = Label::new(Some(k_string.as_str()));
+ 	side_box.pack_start(&k_label, true, true, 0);
+ 	println!("height0{}", board);
+ 	// update_board_gui(height, &board[1..board.len()-1], &game_board);
+ 	update_board_gui(height, "120210120", &game_board, &radio_vec);
+	game_window.show_all();
+
+	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
+	
+	// blue_thing.clear();
+
+
+	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
 	play_button.connect_clicked(move |_| {
 		for button in &radio_vec {
 			if button.get_active() {
@@ -196,30 +220,6 @@ fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &s
 		}
 		println!("{:?}", String::from("passed out of toggle loop"));
 	});
-
-	let game_box: Box = game_builder.get_object("game_box").unwrap();
-	game_box.pack_start(&game_board, true, true, 20);
-	game_box.pack_start(&play_button, false, true, 20);
- 
- //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
-    println!("3");
- 	let side_box: Box = game_builder.get_object("side_box").unwrap();
- 	let mut k_string = "You need to connect ".to_string();
- 	k_string.push_str(&k.to_string());
- 	k_string.push_str(" to win!");
- 	let k_label = Label::new(Some(k_string.as_str()));
- 	side_box.pack_start(&k_label, true, true, 0);
- 	println!("height0{}", board);
- 	update_board_gui(height, &board[1..board.len()-1], &game_board);
-	game_window.show_all();
-
-	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
-	
-	// blue_thing.clear();
-
-
-	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
-	
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
 		main_quit();
