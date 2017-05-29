@@ -31,7 +31,6 @@ fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str, play_btn: &Butto
 
 
 fn play_move(col: usize, id: usize, ip_addr: &str) {
-	// tell server to create new game
 	let client = Client::new();   
 
 	// get before board                              
@@ -43,10 +42,10 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 
 	// send move 
 	let post_url = &format!("http://{}/api/connect_four.svc/play_move", ip_addr);
-	let value = json!({                                                             
-	    "id": id,                                                                   
-	    "move": col                                                                  
-	});                                                                             
+	let value = json!({
+	    "id": id,
+	    "move": col
+	});
 	client.post(post_url).body(&value.to_string()).send().unwrap();
 	println!("playing move col: {}, id: {}", col, id);
 	  
@@ -110,10 +109,14 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let selection_game_builder = Builder::new_from_string(select_src);
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
+	let k_adjustment: Adjustment = selection_game_builder.get_object("k_adjustment").unwrap();
+	let h_adjustment: Adjustment = selection_game_builder.get_object("height_adjustment").unwrap();
+	let w_adjustment: Adjustment = selection_game_builder.get_object("width_adjustment").unwrap();
 
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
+	let ip_copy = ip_addr.clone();
 
 	let join_btn: Button = selection_game_builder.get_object("join_btn").unwrap();
 	join_btn.connect_clicked(move |_| {
@@ -128,6 +131,31 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 			},
 		}
 	});
+	let create_btn: Button = selection_game_builder.get_object("create_btn").unwrap();
+	create_btn.connect_clicked(move |_| {
+
+		let client = Client::new();
+
+		let url = &format!("http://{}/api/connect_four.svc/Games", ip_copy.clone()); 
+		let k: usize = k_adjustment.get_value() as usize;
+		let h: usize = h_adjustment.get_value() as usize;
+		let w: usize = w_adjustment.get_value() as usize;
+
+		let value = json!({
+		    "curr_player": 1,
+		    "height": h,
+		    "width": w,
+		    "k": k,
+		});
+		let response = client.post(url).body(&value.to_string()).send().unwrap();
+
+		let data: Value = from_reader(response).expect("Unable to parse response");
+		let game_id = data["id"].to_string();
+		build_game_window(&game_id, Player::One, ip_copy.clone());
+
+		
+	});
+
 
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
