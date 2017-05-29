@@ -16,6 +16,9 @@ pub enum Player {
 }
 
 //  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
+
+// configure_window
+// creates game window
 fn configure_window(window: &Window) {
 	window.set_title("Connect Four Game Server");
 	let(width, height) = (500, 200);
@@ -26,6 +29,7 @@ fn configure_window(window: &Window) {
     	
 	});
 } 
+
 
 fn configure_game_window(window: &Window) {
 	window.set_title("Connect Four Game Server");
