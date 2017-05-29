@@ -7,6 +7,10 @@ use regex::Regex;
 use std::io::Read;
 use std::str::FromStr;
 
+// is each game a thread ?? if so this will work
+use std::time::Duration;
+use std::thread::sleep;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
 	One,
@@ -36,24 +40,18 @@ fn configure_game_window(window: &Window) {
 	});
 } 
 
-// fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) -> usize {
-// 	let client = Client::new(); 
-// 	let mut url = "http://".to_string();
-// 	url.push_str(ip_addr);
-// 	url.push_str("/api/connect_four.svc/Games"); 
-// 	url.push_str("(");
-// 	url.push_str(str(game_id));
-// 	url.push_str(")");
-
-// 	while true {
-// 		let response = client.get(&url).send().unwrap();
-// 		let server_board = response["board"];
-// 		if curr_board = server_board {
-// 			wait(20);
-// 		} else { break; }
-// 	}
-// 	1
-// }
+fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) {
+	let client = Client::new(); 
+	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
+	loop {
+		let response = client.get(&url).send().unwrap();
+		let server_board = response["board"];
+		if curr_board = server_board {
+			sleep(Duration::new(20, 0));
+			i += 1;
+		} else { break; }
+	}
+}
 
 
 
@@ -72,15 +70,18 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	client.post(&url).body(&value.to_string()).send().unwrap();
 	println!("playing move col: {}, id: {}", col, id);
 	  
-	// // Check that the move was actually played                                      
-	// println!("Checking Move Played");                                               
-	// let url = &format!("http://localhost:8080/api/connect_four.svc/Games({})", id); 
-	// let res = client.get(url).send().unwrap();                                      
-	// assert_eq!(res.status, StatusCode::Ok);                                         
+	// Check that the move was actually played      
+	// how should we get the index to ensure we played the move?                                
+	println!("Checking Move Played");                                               
+	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, id); 
+	let res = client.get(url).send().unwrap();                                      
+	assert_eq!(res.status, StatusCode::Ok);                                         
 	                                                                                
-	// let data: Value = from_reader(res).expect("Unable to parse response!");         
-	// let board = data["board"].as_str().expect("Unable to parse id!");               
-	// assert_eq!(board.chars().nth(0).unwrap(), '1');                   
+	let data: Value = from_reader(res).expect("Unable to parse response!");         
+	let board = data["board"].as_str().expect("Unable to parse id!");  
+
+	// TODO: need to change this line          
+	assert_eq!(board.chars().nth(0).unwrap(), '1');                   
 
 }
 
