@@ -13,9 +13,7 @@ pub enum Player {
 	Two,
 }
 
-
 //  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
-
 fn configure_window(window: &Window) {
 	window.set_title("Connect Four Game Server");
 	let(width, height) = (500, 200);
@@ -38,19 +36,58 @@ fn configure_game_window(window: &Window) {
 	});
 } 
 
-// fn begin_turn() {
-	
+// fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) -> usize {
+// 	let client = Client::new(); 
+// 	let mut url = "http://".to_string();
+// 	url.push_str(ip_addr);
+// 	url.push_str("/api/connect_four.svc/Games"); 
+// 	url.push_str("(");
+// 	url.push_str(str(game_id));
+// 	url.push_str(")");
+
+// 	while true {
+// 		let response = client.get(&url).send().unwrap();
+// 		let server_board = response["board"];
+// 		if curr_board = server_board {
+// 			wait(20);
+// 		} else { break; }
+// 	}
+// 	1
 // }
 
-fn end_turn() {
-	// let game_glade_src = include_str!("game_window.glade");
-	// let game_builder = Builder::new_from_string(game_glade_src);
-	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
-	// play_btn.hide();
+
+
+fn play_move(col: usize, id: usize, ip_addr: &str) {
+	// tell server to create new game
+	let client = Client::new();                                 
+	// get custom URL      
+	let url = &format!("http://{}/api/connect_four.svc/play_move", ip_addr);
+	// let mut url = "http://".to_string();
+	// url.push_str(ip_addr);
+	// url.push_str("/api/connect_four.svc/play_move"); 
+	let value = json!({                                                             
+	    "id": id,                                                                   
+	    "move": col                                                                  
+	});                                                                             
+	client.post(&url).body(&value.to_string()).send().unwrap();
+	println!("playing move col: {}, id: {}", col, id);
+	  
+	// // Check that the move was actually played                                      
+	// println!("Checking Move Played");                                               
+	// let url = &format!("http://localhost:8080/api/connect_four.svc/Games({})", id); 
+	// let res = client.get(url).send().unwrap();                                      
+	// assert_eq!(res.status, StatusCode::Ok);                                         
+	                                                                                
+	// let data: Value = from_reader(res).expect("Unable to parse response!");         
+	// let board = data["board"].as_str().expect("Unable to parse id!");               
+	// assert_eq!(board.chars().nth(0).unwrap(), '1');                   
+
 }
 
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	let client = Client::new();
+
+	// set IP address to modular 
 	let url = &format!("http://localhost:8080/api/connect_four.svc/Games({})", game_id); 
 	println!("{}", url);                                                            
 	let res_option = client.get(url).send();
@@ -62,8 +99,10 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 
 fn update_board_gui(height: usize, board: &str, board_grid: &Grid) {
 
-	let mut columns = vec![];
+	// do we want to make a connection to the server to ensure that it is 
+	// the one from the server ?? 
 
+	let mut columns = vec![];
 	let mut board_cp = board.clone().to_string();
 
 	while board_cp.len() > height {
@@ -126,7 +165,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 						println!("Error getting game dab");
 					}
 				}
-				// build_game_window()
 			},
 			None => {
 				println!("User did not select game");
@@ -146,15 +184,15 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &str, pid: Player, ip_addr: String) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
-	println!("1");
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
 	configure_game_window(&game_window);
 
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
-
 	game_board.set_row_homogeneous(true);
 	game_board.set_column_homogeneous(true);
+	
+	// set names and pictures of starting board
 	for i in 0..width {
 		for j in 0..height {
 			let image = Image::new_from_file("empty.png");
@@ -182,19 +220,16 @@ fn build_game_window(k: usize, height: usize, width: usize, board: &str, gid: &s
 	play_button.connect_clicked(move |_| {
 		for button in &radio_vec {
 			if button.get_active() {
-				// play the move here
-				// play_move(int(button.get_label().unwrap());
-				// add functionality when we connect oData library and game functionality
-				println!("{:?}", button.get_label().unwrap());
-				end_turn();
+				let col = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
+				let id = gid.parse::<usize>.unwrap();
+				play_move(col, id, &ip_addr);
+				update_board(&game_window, &game_builder, id, ip_addr);
+				// play_button.set_sensitive(false);
+				// poll_server()
 				break;
-				// let img_name = "piece_" + str(x) + str(y) ;
-				// ler curr_img = game_builder.get_object(img_name).unwrap();
-				// if player1 { curr_img.set_image("red_piece.png") }
-				// else { curr_img.set_image("blue_piece.png") }	
 			}
 		}
-		println!("{:?}", String::from("passed out of toggle loop"));
+		println!("{:?} Done playing", pid);
 	});
 
 	let game_box: Box = game_builder.get_object("game_box").unwrap();
@@ -245,6 +280,12 @@ fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 			    let games: Vec<Value> = from_reader(response).expect("Unable to parse response!");
 			    let mut game_ids = vec![];
 			    for g in games {
+			    	let v: Vec<usize> = g["board"].as_str().unwrap()
+							    						   .chars()
+							    						   .map(|x| x.to_digit(10).unwrap() as usize)
+							    						   .collect();
+			    	let sum: usize = v.iter().sum();
+			    	if sum >= 2 { continue; }
 			    	game_ids.push(g["id"].to_string());
 			    }
 			    Ok(game_ids)
@@ -263,7 +304,6 @@ pub fn launch() {
 	init().unwrap_or_else(|_| panic!("Panic, unable to initalize GTK!"));	
 
 	// initalize server window
-
 	let server_src = include_str!("server_window.glade");
 	let builder = Builder::new_from_string(server_src);
 	let server_window: Window = builder.get_object("server_window").unwrap();
@@ -301,23 +341,6 @@ pub fn launch() {
 	});
 
 	server_window.show_all();
-
-	// // initalize main window
-	// let glade_src = include_str!("app_window.glade");
-	// let builder = Builder::new_from_string(glade_src);
-	// let app_window: Window = builder.get_object("window1").unwrap();
-	// configure_window(&app_window);
-
-	// // add closure to connect button to open new (game) screen
-	// let connect_btn: Button = builder.get_object("button1").unwrap();
-	// connect_btn.connect_clicked(move |_| {
-	// 	// build and bring game window to view
-	// 	build_game_window(8, 4, 4);
-	// 	println!("{}", String::from("Connect button has been clicked"));
-	// });
-
-	// // bring the window to view and start the application
-	// app_window.show_all(); 
 	main();
 }
 
