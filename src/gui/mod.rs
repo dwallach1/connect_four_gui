@@ -40,7 +40,7 @@ fn configure_game_window(window: &Window) {
 	});
 } 
 
-fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) {
+fn poll_server(curr_board: &str, game_id: i32, ip_addr: &str) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	loop {
@@ -57,8 +57,16 @@ fn poll_server(curr_board: String, game_id: i32, ip_addr: &str) {
 
 fn play_move(col: usize, id: usize, ip_addr: &str) {
 	// tell server to create new game
-	let client = Client::new();                                 
-	// get custom URL      
+	let client = Client::new();   
+
+	// get before board                              
+	let get_url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, id);
+	let res = client.get(get_url).send().unwrap();                                      
+	assert_eq!(res.status, StatusCode::Ok);                                                                                                                     
+	let data: Value = from_reader(res).expect("Unable to parse response!");         
+	let prior_board = data["board"].as_str().expect("Unable to parse id!");  
+
+	// send move 
 	let post_url = &format!("http://{}/api/connect_four.svc/play_move", ip_addr);
 	let value = json!({                                                             
 	    "id": id,                                                                   
@@ -67,19 +75,13 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	client.post(post_url).body(&value.to_string()).send().unwrap();
 	println!("playing move col: {}, id: {}", col, id);
 	  
-	// Check that the move was actually played      
-	// how should we get the index to ensure we played the move?                                
-	println!("Checking Move Played");                                               
-	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, id); 
-	let res = client.get(url).send().unwrap();                                      
+	// get post board                              
+	let res = client.get(get_url).send().unwrap();                                      
 	assert_eq!(res.status, StatusCode::Ok);                                         
-	                                                                                
 	let data: Value = from_reader(res).expect("Unable to parse response!");         
-	let board = data["board"].as_str().expect("Unable to parse id!");  
+	let post_board = data["board"].as_str().expect("Unable to parse id!"); 
 
-	// TODO: need to change this line          
-	assert_eq!(board.chars().nth(0).unwrap(), '1');                   
-
+	assert_eq!(false, post_board == prior_board);
 }
 
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
@@ -166,6 +168,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	selection_window.show_all();
 }
 
+
 fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_info_res = get_game(&game_id, &ip_addr);
 	if game_info_res.is_err() {
@@ -222,8 +225,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
  
- //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
-    println!("3");
  	let side_box: Box = game_builder.get_object("side_box").unwrap();
  	let mut k_string = "You need to connect ".to_string();
  	k_string.push_str(&k.to_string());
@@ -232,29 +233,28 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
  	side_box.pack_start(&k_label, true, true, 0);
  	println!("height0{}", board);
  	update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
- 	// update_board_gui(height, "120210120", &game_board, &radio_vec);
 	game_window.show_all();
 
-	// let blue_thing: Image = game_builder.get_object("0,0").unwrap();
-	
-	// blue_thing.clear();
+	let g_id: usize = game_id.parse().unwrap();
+	let curr_board = board.clone();
+	println!("{:?}", curr_board);
 
-
-	// let play_btn: Button = game_builder.get_object("play_btn").unwrap();
-	play_button.connect_clicked(move |_| {
+	play_button.connect_clicked(move |play_btn| {
 		for button in &radio_vec {
 			if button.get_active() {
-				// let col = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
-				// let id = String::from(gid).parse::<usize>.unwrap();
-				// play_move(col, gameid, &ip_addr);
-				// // update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
-				// // play_button.set_sensitive(false);
-				// poll_server()
-				// break;
+				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
+				play_move(col, g_id, &ip_addr.clone());
+				// update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
+				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
+				// poll_server(board, );
+				play_btn.set_sensitive(false);
+				break;
 			}
 		}
-		println!("{:?} Done playing", pid);
+		println!("{:?} Done playing", &pid);
 	});
+
+
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
 		main_quit();
