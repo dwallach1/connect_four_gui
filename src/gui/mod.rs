@@ -87,8 +87,7 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	let client = Client::new();
 
-	// set IP address to modular 
-	let url = &format!("http://localhost:8080/api/connect_four.svc/Games({})", game_id); 
+	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id); 
 	println!("{}", url);                                                            
 	let res_option = client.get(url).send();
 	match res_option {
@@ -225,13 +224,14 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
  
+ //    let radio_button_group = vec![col_1, col_2, col_3, col_4, col_5, col_6, col_7];
+
  	let side_box: Box = game_builder.get_object("side_box").unwrap();
  	let mut k_string = "You need to connect ".to_string();
  	k_string.push_str(&k.to_string());
  	k_string.push_str(" to win!");
  	let k_label = Label::new(Some(k_string.as_str()));
  	side_box.pack_start(&k_label, true, true, 0);
- 	println!("height0{}", board);
  	update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
 	game_window.show_all();
 
