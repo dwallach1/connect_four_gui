@@ -1,6 +1,6 @@
 # connect_four_gui
 
-Generates the GUI for the ConnectK game implementation
+Generates the GUI for the client-side executable of the the [ConnectK](https://github.com/eecs395rust/ConnectFour) game implementation
 
 Functionality of GUI:
 * **poll_server**: polls server continuously to check whether other player has made a move
@@ -11,3 +11,13 @@ Functionality of GUI:
 * **build_game_window**: builds game window with a ConnectK board and Play Move button
 * **connect_to_server**: connects to [game server](https://github.com/mmgeorge/game_server) to get information about current joinable games & how to create new game
 * **launch**: launches GUI, validates IP address of entered server
+
+
+# Dependencies 
+* gtk = { git = "https://github.com/gtk-rs/gtk.git", features = ["v3_16"] }
+* gdk = { git = "https://github.com/gtk-rs/gdk.git" }
+* regex = "0.2"         
+* hyper = "0.10"           
+* serde_json = "1.0"       
+* serde_derive = "1.0.4"   
+* serde = "1.0.4" 

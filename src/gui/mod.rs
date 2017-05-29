@@ -8,6 +8,7 @@ use std::str::FromStr;
 use std::time::Duration;
 use std::thread::sleep;
 
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
 	One,
@@ -18,23 +19,25 @@ pub enum Player {
 
 // poll_server
 // loops to check whether other player has made a move
-fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) {
+fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) -> String{
 	let client = Client::new(); 
 	let res = get_game(&game_id.to_string(), ip_addr).unwrap();
 	let d: Value = from_reader(res).expect("Unable to parse response!");   
-	let prior_board = d["board"].as_str().expect("Unable to parse board!");
+	let prior_board = d["board"].to_string();
 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
+	let mut server_board: String;
 	loop {
 		let response = client.get(url).send().unwrap();
 		let data: Value = from_reader(response).expect("Unable to parse response!");
-		let server_board = data["board"].as_str().expect("Unable to parse board!");  
-		println!("curr board is: {} server_board is {}", prior_board, server_board);
+		server_board = data["board"].to_string();
+		println!("Polling: -- curr board is: {} server_board is {}", prior_board, server_board);
 		if prior_board == server_board {
 			sleep(Duration::new(2, 0));
 		} else { break; }
 	}
 	play_btn.set_sensitive(true);
+	server_board
 }
 
 
@@ -153,6 +156,9 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		match active_txt {
 			Some(game_id) => {
 				println!("{}", game_id);
+
+				// TODO: check if your turn
+				// if so, poll server
 				build_game_window(&game_id, Player::Two, ip_addr.clone());
 			},
 			None => {
@@ -276,8 +282,9 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 			if button.get_active() {
 				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
 				let new_board = play_move(col-1, g_id, &ip_addr.clone());
-				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
 				play_btn.set_sensitive(false);
+				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
+				game_window.show_all();
 				poll_server(g_id, &ip_addr.clone(), &play_btn);
 				break;
 			}
@@ -379,4 +386,3 @@ pub fn launch() {
 	server_window.show_all();
 	main();
 }
-
