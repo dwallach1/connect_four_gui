@@ -16,31 +16,8 @@ pub enum Player {
 
 //  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
 
-// configure_window
-// creates game window
-fn configure_window(window: &Window) {
-	window.set_title("Connect Four Game Server");
-	let(width, height) = (500, 200);
-	window.set_default_size(width,height);  
-	window.connect_delete_event(|_,_| {
-    	main_quit();
-    	Inhibit(false)
-    	
-	});
-} 
-
-
-fn configure_game_window(window: &Window) {
-	window.set_title("Connect Four Game Server");
-	let(width, height) = (750, 650);
-	window.set_default_size(width,height);  
-	window.connect_delete_event(|_,_| {
-    	main_quit();
-    	Inhibit(false)
-    	
-	});
-} 
-
+// poll_server
+// loops to check whether other player has made a move
 fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
@@ -55,7 +32,8 @@ fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
 }
 
 
-
+// play_move
+// plays the move specified by user
 fn play_move(col: usize, id: usize, ip_addr: &str) {
 	// tell server to create new game
 	let client = Client::new();   
@@ -86,6 +64,8 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	assert_eq!(false, post_board == prior_board);
 }
 
+// get_game
+// gets game info from game server for specified game_id
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	let client = Client::new();
 
@@ -98,17 +78,25 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	}
 }
 
+// update_board_gui
+// updates the board GUI based on current board
 fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
 
 	let mut columns = vec![];
 	let mut board_cp = board.clone().to_string();
 
+	//split off board representation into columns
 	while board_cp.len() >= height {
 		let a = board_cp.split_off(height);
 		columns.push(board_cp);
 		board_cp = a;
 	}
 
+	// these for loops are to match server representation of game
+	// flattened array "abcdefghi" becomes
+	// c  f  i
+	// b  e  h
+	// a  d  g
 	for col_index in 0 .. columns.len() {
 		let col = columns[col_index].clone();
 		println!("{}",col);
@@ -117,13 +105,17 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 			println!("col_index: {}", col_index);
 			println!("row_index: {}", row_index);
 			println!("final product: {}", height-row_index-1);
+			//if player 1 => put in a blue piece
 			if c == '1' {
 				let blue_piece = Image::new_from_file("blue_piece.png");
 				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
-			} else if c == '2' {
+			}
+			//if player 2 => put in a red piece
+			else if c == '2' {
 				let red_piece = Image::new_from_file("red_piece.png");
 				board_grid.attach(&red_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
 			}
+			//disable column if full
 			if row_index == height - 1 && c != '0' {
 				radio_vec[col_index].set_sensitive(false);
 			}
@@ -131,20 +123,20 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 	}
 }
 
+// build_selection_game_window
+// builds the part of the GUI that allows user to select a game
+// only games that can be joined are displayed
 fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let select_src = include_str!("selection_window.glade");
 	let selection_game_builder = Builder::new_from_string(select_src);
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
 
-<<<<<<< HEAD
-	// will only display valid games -- games parsed earlier
-=======
->>>>>>> ec56fe57dfb0c166458b93b8de81452f2bcc554e
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
 
+	// activate join game button
 	let join_btn: Button = selection_game_builder.get_object("join_btn").unwrap();
 	join_btn.connect_clicked(move |_| {
 		let active_txt = combo_box.get_active_text();
@@ -159,10 +151,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ec56fe57dfb0c166458b93b8de81452f2bcc554e
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
@@ -172,10 +160,13 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	selection_window.show_all();
 }
 
+
+// build_game_window
+// builds game window with connect goud board and play game button
 fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_info_res = get_game(&game_id, &ip_addr);
 	if game_info_res.is_err() {
-		println!("Error getting game dab");
+		println!("Error getting game");
 		return;
 	}
 	let game_info = game_info_res.unwrap();
@@ -183,6 +174,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	//parse JSON
 	let game_value: Value = from_reader(game_info).expect("Unable to parse response!");
 
+	// allow user to specify k, height, width, board
 	let k = usize::from_str(&game_value["k"].to_string()).unwrap();
 	let height = usize::from_str(&game_value["height"].to_string()).unwrap();
 	let width = usize::from_str(&game_value["width"].to_string()).unwrap();
@@ -191,7 +183,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
-	configure_game_window(&game_window);
 
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
@@ -221,9 +212,11 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
     	radio_vec.push(btn);
     }
 
+    // add play button
 	let play_button = Button::new_with_label("Play");
 	play_button.set_name("play_btn");
 
+	// game_box holds board and play button children
 	let game_box: Box = game_builder.get_object("game_box").unwrap();
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
@@ -241,6 +234,8 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let curr_board = board.clone();
 	println!("{:?}", curr_board);
 
+	//activate play button
+	//when it's clicked, disable it until other player has made a move (as determined by poll_server) 
 	play_button.connect_clicked(move |play_btn| {
 		for button in &radio_vec {
 			if button.get_active() {
@@ -263,7 +258,8 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	});
 }
 
-
+// connect_to_server
+// connects to game server to get information about current games & how to create new game
 fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 	let client = Client::new();
 	let mut url = "http://".to_string();
@@ -278,12 +274,15 @@ fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 			    // Parse JSON
 			    let games: Vec<Value> = from_reader(response).expect("Unable to parse response!");
 			    let mut game_ids = vec![];
+
+			    //get all the current games that can be joined
 			    for g in games {
 			    	let v: Vec<usize> = g["board"].as_str().unwrap()
 							    						   .chars()
 							    						   .map(|x| x.to_digit(10).unwrap() as usize)
 							    						   .collect();
 			    	let sum: usize = v.iter().sum();
+			    	// there are two players in this game, not join-able
 			    	if sum >= 2 { continue; }
 			    	game_ids.push(g["id"].to_string());
 			    }
@@ -297,6 +296,9 @@ fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 
 }
 
+// launch
+// launches game GUI
+// validates entered IP address
 pub fn launch() {     
 
 	// first step: initalize GTK
@@ -306,12 +308,12 @@ pub fn launch() {
 	let server_src = include_str!("server_window.glade");
 	let builder = Builder::new_from_string(server_src);
 	let server_window: Window = builder.get_object("server_window").unwrap();
-	configure_window(&server_window);
 
 	// add closure to connect button to open new (game) screen
 	let connect_btn: Button = builder.get_object("connect_btn").unwrap();
 	let ip_entry: Entry = builder.get_object("ip_entry").unwrap();
 	let warning_label: Label = builder.get_object("warning_label").unwrap();
+	//ip address validation
 	let re = Regex::new(r"^\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b$").unwrap();
 	connect_btn.connect_clicked(move |_| {
 		if let Some(ip_addr) = ip_entry.get_text() {
