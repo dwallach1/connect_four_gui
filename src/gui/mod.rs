@@ -124,7 +124,7 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 }
 
 // build_selection_game_window
-// builds the part of the GUI that allows user to select a game
+// builds the parts of the GUI that allows user to select a game and create a game
 // only games that can be joined are displayed
 fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let select_src = include_str!("selection_window.glade");
@@ -191,7 +191,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 
 
 // build_game_window
-// builds game window with connect goud board and play game button
+// builds game window with connect four board and play game button
 fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_info_res = get_game(&game_id, &ip_addr);
 	if game_info_res.is_err() {
