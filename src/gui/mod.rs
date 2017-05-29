@@ -6,8 +6,6 @@ use serde_json::{Value, from_reader};
 use regex::Regex;
 use std::io::Read;
 use std::str::FromStr;
-
-// is each game a thread ?? if so this will work
 use std::time::Duration;
 use std::thread::sleep;
 
@@ -40,7 +38,7 @@ fn configure_game_window(window: &Window) {
 	});
 } 
 
-fn poll_server(curr_board: &str, game_id: i32, ip_addr: &str) {
+fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	loop {
@@ -81,6 +79,7 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	let data: Value = from_reader(res).expect("Unable to parse response!");         
 	let post_board = data["board"].as_str().expect("Unable to parse id!"); 
 
+	// raise error if boards are the same AKA move was not played
 	assert_eq!(false, post_board == prior_board);
 }
 
@@ -137,7 +136,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
 
-	//TODO: display valid games only
+	// will only display valid games -- games parsed earlier
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
@@ -156,8 +155,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 
-
-
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
@@ -166,7 +163,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	});
 	selection_window.show_all();
 }
-
 
 fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_info_res = get_game(&game_id, &ip_addr);
@@ -244,10 +240,9 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 			if button.get_active() {
 				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
 				play_move(col, g_id, &ip_addr.clone());
-				// update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
 				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
-				// poll_server(board, );
 				play_btn.set_sensitive(false);
+				poll_server(&curr_board[1..curr_board.len()-1], g_id, &ip_addr.clone());
 				break;
 			}
 		}
