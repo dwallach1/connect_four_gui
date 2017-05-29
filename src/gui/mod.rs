@@ -37,7 +37,7 @@ fn configure_game_window(window: &Window) {
 	});
 } 
 
-fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
+fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str, play_btn: &Button) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	loop {
@@ -48,6 +48,9 @@ fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
 			sleep(Duration::new(20, 0));
 		} else { break; }
 	}
+	// let game_glade_src = include_str!("game_window.glade");
+	// let game_builder = Builder::new_from_string(game_glade_src);
+	play_btn.set_sensitive(true);
 }
 
 
@@ -80,6 +83,9 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 
 	// raise error if boards are the same AKA move was not played
 	assert_eq!(false, post_board == prior_board);
+
+
+
 }
 
 fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
@@ -133,10 +139,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
 	let combo_box: ComboBoxText = selection_game_builder.get_object("existing_combo").unwrap();
 
-<<<<<<< HEAD
-	// will only display valid games -- games parsed earlier
-=======
->>>>>>> ec56fe57dfb0c166458b93b8de81452f2bcc554e
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
@@ -155,10 +157,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ec56fe57dfb0c166458b93b8de81452f2bcc554e
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
@@ -244,7 +242,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 				play_move(col, g_id, &ip_addr.clone());
 				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
 				play_btn.set_sensitive(false);
-				poll_server(&curr_board[1..curr_board.len()-1], g_id, &ip_addr.clone());
+				poll_server(&curr_board[1..curr_board.len()-1], g_id, &ip_addr.clone(), &play_btn);
 				break;
 			}
 		}
