@@ -31,7 +31,7 @@ fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) {
 		let server_board = data["board"].as_str().expect("Unable to parse board!");  
 		println!("curr board is: {} server_board is {}", prior_board, server_board);
 		if prior_board == server_board {
-			sleep(Duration::new(20, 0));
+			sleep(Duration::new(2, 0));
 		} else { break; }
 	}
 	play_btn.set_sensitive(true);
@@ -40,7 +40,7 @@ fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) {
 
 // play_move
 // plays the move specified by user
-fn play_move(col: usize, id: usize, ip_addr: &str) {
+fn play_move(col: usize, id: usize, ip_addr: &str) -> String {
 	let client = Client::new();   
 
 	// get before board                              
@@ -62,10 +62,11 @@ fn play_move(col: usize, id: usize, ip_addr: &str) {
 	// get post board                              
 	let res = client.get(get_url).send().unwrap();                                      
 	let data: Value = from_reader(res).expect("Unable to parse response!");         
-	let post_board = data["board"].as_str().expect("Unable to parse id!"); 
+	let post_board = data["board"].to_string();
 
 	// raise error if boards are the same AKA move was not played
-	assert_eq!(false, post_board == prior_board);
+	assert_eq!(false, post_board.as_str() == prior_board);
+	post_board
 }
 
 // get_game
@@ -113,6 +114,7 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 			if c == '1' {
 				let blue_piece = Image::new_from_file("blue_piece.png");
 				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
+				println!("got here dude");
 			}
 			//if player 2 => put in a red piece
 			else if c == '2' {
@@ -273,8 +275,8 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 		for button in &radio_vec {
 			if button.get_active() {
 				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
-				play_move(col, g_id, &ip_addr.clone());
-				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
+				let new_board = play_move(col-1, g_id, &ip_addr.clone());
+				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
 				play_btn.set_sensitive(false);
 				poll_server(g_id, &ip_addr.clone(), &play_btn);
 				break;
