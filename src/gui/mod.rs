@@ -18,7 +18,7 @@ pub enum Player {
 
 // poll_server
 // loops to check whether other player has made a move
-fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
+fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str, play_btn: &Button) {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	loop {
@@ -29,6 +29,7 @@ fn poll_server(curr_board: &str, game_id: usize, ip_addr: &str) {
 			sleep(Duration::new(20, 0));
 		} else { break; }
 	}
+	play_btn.set_sensitive(true);
 }
 
 
@@ -243,7 +244,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 				play_move(col, g_id, &ip_addr.clone());
 				update_board_gui(height, &curr_board[1..curr_board.len()-1], &game_board, &radio_vec);
 				play_btn.set_sensitive(false);
-				poll_server(&curr_board[1..curr_board.len()-1], g_id, &ip_addr.clone());
+				poll_server(&curr_board[1..curr_board.len()-1], g_id, &ip_addr.clone(), &play_btn);
 				break;
 			}
 		}
