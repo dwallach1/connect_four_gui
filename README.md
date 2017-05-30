@@ -1,4 +1,4 @@
-# connect_four_gui
+# ConnectK GUI
 
 Generates the GUI for the client-side executable of the the [ConnectK](https://github.com/eecs395rust/ConnectFour) game implementation
 
@@ -13,6 +13,10 @@ Functionality of GUI:
 * **launch**: launches GUI, validates IP address of entered server
 
 
+# Workflow
+
+This repository holds the client-side GUI for our ConnectK Rust package. It begins by prompting the user to enter the IP address of the server. This IP address, for the purposes of this project, is either a local host (i.e. http://127.0.0.1:8080) or a wildcat server exposing a local host via Ngrok (http://4f315d8e.ngrok.io). The IP address is configured by the [game server](https://github.com/mmgeorge/game_server) program which is the server-side executable. If given a valid IP address, validated by a connection to the running server, the client is then presented with a screen to either join exisitng games or create a new game with W columns, H rows and an amount of K in succession needed to win the game. For the game to be valid, K must be less than or equal to either H or W. After this, the main game screen is brought to view. If it is the user's turn, all the buttons will be enabled (unless a column is full) and the user will be able to select a radio button and then click play to send their move. This will cause their game state to begin polling the server for the other players move. Polling disables the buttons on their screen as they should not be able to play moves when it is not their turn. The game screen will also poll when you join a game and it is not your turn. After a game is over (either won, tied or abandoned) the sceen will display a message and the user can exit out of the screen and either start/join a new game or exit the ConnectK program. 
+
 # Dependencies 
 * gtk = { git = "https://github.com/gtk-rs/gtk.git", features = ["v3_16"] }
 * gdk = { git = "https://github.com/gtk-rs/gdk.git" }
@@ -21,3 +25,4 @@ Functionality of GUI:
 * serde_json = "1.0"       
 * serde_derive = "1.0.4"   
 * serde = "1.0.4" 
+

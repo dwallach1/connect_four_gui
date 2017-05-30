@@ -1,3 +1,4 @@
+//! # ConnectK Client Side GUI
 use gtk::*;
 use hyper::Client;
 use hyper::client::Response;                     
@@ -7,6 +8,7 @@ use regex::Regex;
 use std::str::FromStr;
 use std::time::Duration;
 use std::thread::sleep;
+use std::thread;
 
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -19,7 +21,8 @@ pub enum Player {
 
 // poll_server
 // loops to check whether other player has made a move
-fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) -> String{
+fn poll_server(game_id: usize, ip_addr: &str) {
+// fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) {
 	let client = Client::new(); 
 	let res = get_game(&game_id.to_string(), ip_addr).unwrap();
 	let d: Value = from_reader(res).expect("Unable to parse response!");   
@@ -36,10 +39,12 @@ fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) -> String{
 			sleep(Duration::new(2, 0));
 		} else { break; }
 	}
-	play_btn.set_sensitive(true);
-	server_board
+	println!("Done polling");
+	// done_polling();
 }
 
+
+// fn done_polling()
 
 // play_move
 // plays the move specified by user
@@ -224,7 +229,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
-
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
 	game_board.set_row_homogeneous(true);
@@ -272,8 +276,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	game_window.show_all();
 
 	let g_id: usize = game_id.parse().unwrap();
-	let curr_board = board.clone();
-	println!("{:?}", curr_board);
 
 	//activate play button
 	//when it's clicked, disable it until other player has made a move (as determined by poll_server) 
@@ -285,13 +287,17 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 				play_btn.set_sensitive(false);
 				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
 				game_window.show_all();
-				poll_server(g_id, &ip_addr.clone(), &play_btn);
+				let g = g_id.clone();
+				let i = ip_addr.clone();
+				thread::spawn(move || {
+					poll_server(g, &i);
+					// idle_add(move || { &play_button.set_sensitive(true); Continue(false) } );
+				});
 				break;
 			}
 		}
 		println!("{:?} Done playing", &pid);
 	});
-
 
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
@@ -359,7 +365,7 @@ pub fn launch() {
 	let re = Regex::new(r"^\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\b$").unwrap();
 	connect_btn.connect_clicked(move |_| {
 		if let Some(ip_addr) = ip_entry.get_text() {
-			if re.is_match(&ip_addr) {
+			if re.is_match(&ip_addr) || ip_addr.contains("ngrok") {
 				let game_ids = connect_to_server(&ip_addr);
 				match game_ids {
 					Ok(g_ids) => build_selection_game_window(g_ids, ip_addr),
