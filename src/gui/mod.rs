@@ -1,4 +1,4 @@
-//! # ConnectK Client Side GUI
+//! # Connect-K Client Side GUI
 use gtk::*;
 use hyper::Client;
 use hyper::client::Response;                     
@@ -11,6 +11,14 @@ use std::thread::sleep;
 use std::thread;
 
 
+// TODOS:
+//		Radiovec deselct all from updategui -- 
+// 		Process end game State 
+// 		Display user message when game is over
+//      Add documentation to ConnectK library 
+//		Clean-up / refactor code 
+// 		
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
 	One,
@@ -21,8 +29,7 @@ pub enum Player {
 
 // poll_server
 // loops to check whether other player has made a move
-fn poll_server(game_id: usize, ip_addr: &str) {
-// fn poll_server(game_id: usize, ip_addr: &str, play_btn: &Button) {
+fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let client = Client::new(); 
 	let res = get_game(&game_id.to_string(), ip_addr).unwrap();
 	let d: Value = from_reader(res).expect("Unable to parse response!");   
@@ -34,13 +41,17 @@ fn poll_server(game_id: usize, ip_addr: &str) {
 		let response = client.get(url).send().unwrap();
 		let data: Value = from_reader(response).expect("Unable to parse response!");
 		server_board = data["board"].to_string();
-		println!("Polling: -- curr board is: {} server_board is {}", prior_board, server_board);
-		if prior_board == server_board {
+		// println!("Polling: -- curr board is: {} server_board is {}", prior_board, server_board);
+		println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
+		// if prior_board == server_board {
+		if board == server_board {
 			sleep(Duration::new(2, 0));
+			return true;
 		} else { break; }
 	}
 	println!("Done polling");
 	// done_polling();
+	false
 }
 
 
@@ -161,9 +172,6 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		match active_txt {
 			Some(game_id) => {
 				println!("{}", game_id);
-
-				// TODO: check if your turn
-				// if so, poll server
 				build_game_window(&game_id, Player::Two, ip_addr.clone());
 			},
 			None => {
@@ -225,6 +233,9 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let height = usize::from_str(&game_value["height"].to_string()).unwrap();
 	let width = usize::from_str(&game_value["width"].to_string()).unwrap();
 	let board = &game_value["board"].to_string();
+	let player_turn = &game_value["curr_player"].to_string();
+
+
 	
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
@@ -276,6 +287,41 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	game_window.show_all();
 
 	let g_id: usize = game_id.parse().unwrap();
+	
+
+	if (player_turn == "1" && pid == Player::Two) || (player_turn == "2" && pid == Player::One) {
+		 
+		 // clone all necessary variables to move into idle closure
+		 let g = g_id.clone();
+		 let i = ip_addr.clone();
+		 let b = board.clone();
+		 let h = height.clone();
+		 let gb = game_board.clone();
+		 let pb = play_button.clone();
+		 let rv = radio_vec.clone();
+		 let gw = game_window.clone();
+		 pb.set_sensitive(false);
+
+		 idle_add(move || { 
+					let c = poll_server(g, &i, &b); 
+					if c  {  return Continue(true); }
+					else {
+						pb.set_sensitive(true);
+						let res = get_game(&g.to_string(), &i.clone()).unwrap();
+						let data: Value = from_reader(res).expect("Unable to parse response!");   
+						let new_new_board = data["board"].to_string();
+						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
+						gw.show_all();
+						Continue(false) 
+					}
+				});
+
+		 // let res = get_game(&g_id.to_string(), &ip_addr.clone()).unwrap();
+		 // let data: Value = from_reader(res).expect("Unable to parse response!");   
+		 // let new_board = data["board"].to_string();
+		 // update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
+		 // game_window.show_all();
+	}
 
 	//activate play button
 	//when it's clicked, disable it until other player has made a move (as determined by poll_server) 
@@ -287,17 +333,37 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 				play_btn.set_sensitive(false);
 				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
 				game_window.show_all();
+
+				// clone all necessary variables to move into idle closure
 				let g = g_id.clone();
 				let i = ip_addr.clone();
-				thread::spawn(move || {
-					poll_server(g, &i);
-					// idle_add(move || { &play_button.set_sensitive(true); Continue(false) } );
+				let b = new_board.clone();
+				let h = height.clone();
+				let pb = play_btn.clone();
+				let gb = game_board.clone();
+				let rv = radio_vec.clone();
+				let gw = game_window.clone();
+
+				idle_add(move || { 
+					let c = poll_server(g, &i, &b); 
+					if c  {  return Continue(true); }
+					else {
+						pb.set_sensitive(true);
+						let res = get_game(&g.to_string(), &i.clone()).unwrap();
+						let data: Value = from_reader(res).expect("Unable to parse response!");   
+						let new_new_board = data["board"].to_string();
+						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
+						gw.show_all();
+						Continue(false) 
+					}
 				});
+
 				break;
 			}
-		}
-		println!("{:?} Done playing", &pid);
+		} 
+		println!("Player {:?} Done playing", &pid);
 	});
+
 
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
