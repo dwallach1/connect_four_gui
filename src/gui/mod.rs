@@ -1,4 +1,7 @@
 //! # Connect-K Client Side GUI
+//! Note that "cloning a Gtk-rs object only cost a pointer copy, so it’s not a problem." - GTK-rs documentation
+//! this allows us to move data into closures to achieve our client-server functionality
+//!  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
 use gtk::*;
 use hyper::Client;
 use hyper::client::Response;                     
@@ -8,13 +11,13 @@ use regex::Regex;
 use std::str::FromStr;
 use std::time::Duration;
 use std::thread::sleep;
-use std::thread;
 
 
 // TODOS:
 //		Radiovec deselct all from updategui -- 
 // 		Process end game State 
 // 		Display user message when game is over
+// ---------------------------------------------------
 //      Add documentation to ConnectK library 
 //		Clean-up / refactor code 
 // 		
@@ -25,40 +28,30 @@ pub enum Player {
 	Two,
 }
 
-//  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
+
 
 // poll_server
-// loops to check whether other player has made a move
+// used inside a loop to send requests to get the status of the game 
+// sleeps for 3 seconds after each call to avoid excessive waste of resources
 fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let client = Client::new(); 
-	let res = get_game(&game_id.to_string(), ip_addr).unwrap();
-	let d: Value = from_reader(res).expect("Unable to parse response!");   
-	let prior_board = d["board"].to_string();
-
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
-	let mut server_board: String;
-	loop {
-		let response = client.get(url).send().unwrap();
-		let data: Value = from_reader(response).expect("Unable to parse response!");
-		server_board = data["board"].to_string();
-		// println!("Polling: -- curr board is: {} server_board is {}", prior_board, server_board);
-		println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
-		// if prior_board == server_board {
-		if board == server_board {
-			sleep(Duration::new(2, 0));
-			return true;
-		} else { break; }
-	}
+	let server_board: String;
+	let response = client.get(url).send().unwrap();
+	let data: Value = from_reader(response).expect("Unable to parse response!");
+	server_board = data["board"].to_string();
+	println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
+	if board == server_board {
+		sleep(Duration::new(3, 0));
+		return true;
+	} 
 	println!("Done polling");
-	// done_polling();
 	false
 }
 
-
-// fn done_polling()
-
 // play_move
 // plays the move specified by user
+// returns the board (string) of the updated board
 fn play_move(col: usize, id: usize, ip_addr: &str) -> String {
 	let client = Client::new();   
 
@@ -145,6 +138,10 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 				radio_vec[col_index].set_sensitive(false);
 			}
 		}
+	}
+
+	for r in radio_vec {
+		if r.get_sensitive() == true { r.set_active(true); break;}
 	}
 }
 
@@ -295,6 +292,8 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let g_id: usize = game_id.parse().unwrap();
 	
 
+	// check if it is not the players turn, if this is the case then
+	// poll the server and update board after new move is played
 	if (player_turn == "1" && pid == Player::Two) || (player_turn == "2" && pid == Player::One) {
 		 
 		 // clone all necessary variables to move into idle closure
@@ -321,12 +320,6 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 						Continue(false) 
 					}
 				});
-
-		 // let res = get_game(&g_id.to_string(), &ip_addr.clone()).unwrap();
-		 // let data: Value = from_reader(res).expect("Unable to parse response!");   
-		 // let new_board = data["board"].to_string();
-		 // update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
-		 // game_window.show_all();
 	}
 
 	//activate play button
@@ -370,7 +363,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 		println!("Player {:?} Done playing", &pid);
 	});
 
-
+	// connect quit event if user wants to exit 
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
 		main_quit();
