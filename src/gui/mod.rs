@@ -172,6 +172,7 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 	let create_btn: Button = selection_game_builder.get_object("create_btn").unwrap();
+	let warning_label: Label = selection_game_builder.get_object("warning_label").unwrap();
 	create_btn.connect_clicked(move |_| {
 
 		let client = Client::new();
@@ -180,6 +181,11 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		let k: usize = k_adjustment.get_value() as usize;
 		let h: usize = h_adjustment.get_value() as usize;
 		let w: usize = w_adjustment.get_value() as usize;
+
+		if k > h && k  > w {
+			warning_label.set_text("Please make sure that k is less than height or width");
+			return;
+		}
 
 		let value = json!({
 		    "curr_player": 1,
