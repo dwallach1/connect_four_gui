@@ -15,6 +15,9 @@ use std::str::FromStr;
 use std::time::Duration;
 use std::thread::sleep;
 
+//TODO:
+// refresh button on the join page 
+// Configure windows?
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
@@ -35,10 +38,11 @@ pub enum Player {
 pub fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
-	let server_board: String;
 	let response = client.get(url).send().unwrap();
 	let data: Value = from_reader(response).expect("Unable to parse response!");
-	server_board = data["board"].to_string();
+	let game_status = data["status"].as_str().unwrap();
+	if game_status != "InProcess" {	return false; }	
+	let server_board = data["board"].to_string();
 	println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
 	if board == server_board {
 		sleep(Duration::new(3, 0));
@@ -242,18 +246,23 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let width = usize::from_str(&game_value["width"].to_string()).unwrap();
 	let board = &game_value["board"].to_string();
 	let player_turn = &game_value["curr_player"].to_string();
-
-
 	
 	let game_glade_src = include_str!("game_window.glade");
 	let game_builder = Builder::new_from_string(game_glade_src);
 	let game_window: Window = game_builder.get_object("game_window").unwrap();
+
+	let mut title_string = "Server: ".to_string();
+	title_string.push_str(&ip_addr);
+	title_string.push_str(" / Game ID: ");
+	title_string.push_str(game_id);
+	game_window.set_title(&title_string);	
+
 	let game_board = Grid::new();
 	game_board.set_name("game_grid");
 	game_board.set_row_homogeneous(true);
 	game_board.set_column_homogeneous(true);
 	
-	// set names and pictures of starting board
+	// set names and pictures of starting/empty board
 	for i in 0..width {
 		for j in 0..height {
 			let image = Image::new_from_file("imgs/empty.png");
@@ -285,13 +294,30 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	game_box.pack_start(&game_board, true, true, 20);
 	game_box.pack_start(&play_button, false, true, 20);
 
- 	let side_box: Box = game_builder.get_object("side_box").unwrap();
- 	let mut k_string = "You need to connect ".to_string();
- 	k_string.push_str(&k.to_string());
- 	k_string.push_str(" to win!");
- 	let k_label = Label::new(Some(k_string.as_str()));
- 	side_box.pack_start(&k_label, true, true, 0);
+	// handle player label 
+	let player_label: Label = game_builder.get_object("player_label").unwrap();
+	let player_text: &str;
+	if pid == Player::One { player_text = "You are blue!"; }
+	else { player_text = "You are red!"; }
+	player_label.set_text(player_text);
+
+ 	// let side_box: Box = game_builder.get_object("side_box").unwrap();
+	let connect_label: Label = game_builder.get_object("connect_label").unwrap();
+ 	let mut k_text = "You need to connect ".to_string();
+ 	k_text.push_str(&k.to_string());
+ 	k_text.push_str(" to win!");
+ 	connect_label.set_text(&k_text);
+ 	// let k_label = Label::new(Some(k_string.as_str()));
+ 	// side_box.pack_start(&k_label, true, true, 0);
+
+
+ 	// used to indicate game over 
+ 	let game_over_label: Label = game_builder.get_object("game_over_label").unwrap();
+
+ 	// init board with game state
  	update_board_gui(height, &board[1..board.len()-1], &game_board, &radio_vec);
+
+	// render everything	
 	game_window.show_all();
 
 	let g_id: usize = game_id.parse().unwrap();
@@ -319,16 +345,6 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 						pb.set_sensitive(true);
 						let res = get_game(&g.to_string(), &i.clone()).unwrap();
 						let data: Value = from_reader(res).expect("Unable to parse response!");
-						let game_status = data["status"].to_string();
-						if game_status != "InProcess" {
-							match game_status.as_str() {
-								"PlayerOneWin" => {},
-								"PlayerTwoWin" => {},
-								_ 		   => {},
-
-							}
-							println!("GAME OVER DAB");
-						}
 						let new_new_board = data["board"].to_string();
 						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
 						gw.show_all();
@@ -342,7 +358,8 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	play_button.connect_clicked(move |play_btn| {
 		for button in &radio_vec {
 			if button.get_active() {
-				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); // get the column of move
+				// get the column of move
+				let col: usize = button.get_label().unwrap().parse::<usize>().unwrap(); 
 				let new_board = play_move(col-1, g_id, &ip_addr.clone());
 				play_btn.set_sensitive(false);
 				update_board_gui(height, &new_board[1..new_board.len()-1], &game_board, &radio_vec);
@@ -357,6 +374,7 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 				let gb = game_board.clone();
 				let rv = radio_vec.clone();
 				let gw = game_window.clone();
+				let gol = game_over_label.clone();
 
 				idle_add(move || { 
 					let c = poll_server(g, &i, &b); 
@@ -366,17 +384,17 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 						let res = get_game(&g.to_string(), &i.clone()).unwrap();
 						let data: Value = from_reader(res).expect("Unable to parse response!");   
 						let new_new_board = data["board"].to_string();
-						let status = data["status"].to_string();
-						println!("status is: {}",status );
-						if status != "InProcess" {
-							pb.hide();
-							for r in &rv {
-								r.hide();
-							}
-							if status == "PlayerOneWin" { println!("Player 1 won!"); }
-							else { println!("Player 2 won!");}
-						}
 						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
+						let game_status = data["status"].as_str().unwrap();
+						println!("status is: {}", game_status);
+						if game_status != "InProcess" {
+							pb.set_sensitive(false);
+							for r in &rv {
+								r.set_sensitive(false);
+							}
+							let end_msg = build_game_over_window(game_status);
+							gol.set_text(&end_msg);
+						}
 						gw.show_all();
 						Continue(false) 
 					}
@@ -394,6 +412,29 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 		main_quit();
     	Inhibit(false);
 	});
+}
+
+fn build_game_over_window(status: &str) -> String {
+	let over_src = include_str!("game_over_window.glade");
+	let over_game_builder = Builder::new_from_string(over_src);
+	let over_window: Window = over_game_builder.get_object("game_over_window").unwrap();
+	let msg_label: Label = over_game_builder.get_object("message_label").unwrap();
+	let message_str: &str;
+	match status {
+		"PlayerOneWin" => { message_str = "Blue player wins!"; },
+		"PlayerTwoWin" => { message_str = "Red player wins!"; },
+		_ 		   	   => { message_str = "Tie game! Go 'Cats!"; },
+
+	}
+	msg_label.set_text(&message_str);
+
+	let btn: Button = over_game_builder.get_object("ok_button").unwrap();
+	let window_copy = over_window.clone();
+	btn.connect_clicked(move |_| {
+		window_copy.close();
+	});
+	over_window.show_all();
+	message_str.to_string()
 }
 
 /// Connects to game server to get information about current, joinable games.
