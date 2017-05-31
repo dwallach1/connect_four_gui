@@ -14,7 +14,7 @@ use std::thread::sleep;
 
 
 // TODOS:
-//		Radiovec deselct all from updategui -- 
+//		Radiovec deselct all from updategui [DONE]
 // 		Process end game State 
 // 		Display user message when game is over
 // ---------------------------------------------------
@@ -27,8 +27,6 @@ pub enum Player {
 	One,
 	Two,
 }
-
-
 
 // poll_server
 // used inside a loop to send requests to get the status of the game 
@@ -95,6 +93,9 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	}
 }
 
+
+// fn end_game(player: Player, )
+
 // update_board_gui
 // updates the board GUI based on current board
 fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
@@ -116,17 +117,11 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 	// a  d  g
 	for col_index in 0 .. columns.len() {
 		let col = columns[col_index].clone();
-		println!("{}",col);
 		for (row_index, c) in col.chars().enumerate() {
-			println!("c: {}", c);
-			println!("col_index: {}", col_index);
-			println!("row_index: {}", row_index);
-			println!("final product: {}", height-row_index-1);
 			//if player 1 => put in a blue piece
 			if c == '1' {
 				let blue_piece = Image::new_from_file("blue_piece.png");
 				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
-				println!("got here dude");
 			}
 			//if player 2 => put in a red piece
 			else if c == '2' {
@@ -351,6 +346,16 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 						let res = get_game(&g.to_string(), &i.clone()).unwrap();
 						let data: Value = from_reader(res).expect("Unable to parse response!");   
 						let new_new_board = data["board"].to_string();
+						let status = data["status"].to_string();
+						println!("status is: {}",status );
+						if status != "InProcess" {
+							pb.hide();
+							for r in &rv {
+								r.hide();
+							}
+							if status == "PlayerOneWin" { println!("Player 1 won!"); }
+							else { println!("Player 2 won!");}
+						}
 						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
 						gw.show_all();
 						Continue(false) 
@@ -421,6 +426,7 @@ pub fn launch() {
 	let server_src = include_str!("server_window.glade");
 	let builder = Builder::new_from_string(server_src);
 	let server_window: Window = builder.get_object("server_window").unwrap();
+	server_window.set_default_size(400, 200);
 
 	// add closure to connect button to open new (game) screen
 	let connect_btn: Button = builder.get_object("connect_btn").unwrap();

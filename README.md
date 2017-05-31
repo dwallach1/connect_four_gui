@@ -1,6 +1,6 @@
 # ConnectK GUI
 
-Generates the GUI for the client-side executable of the the [ConnectK](https://github.com/eecs395rust/ConnectFour) game implementation
+Generates the GUI for the client-side executable of the the [ConnectK](https://github.com/eecs395rust/ConnectFour) game implementation. To make the GUI, we used the Rust binding [GTK+ 3 library](http://gtk-rs.org/docs/gtk/index.html). This library is not thread safe; however, it provides several functions that we utilized to allow for polling the server and keeping game states synchronized (like idle_add). Several places in our mod.rs code, we need to clone variables as we move them into closures. This may seem inefficient, but due to the GTK API, each clone is only the cost of a pointer copy. To read more about this, please refer to a section of the GTK-rs documentation [here](http://gtk-rs.org/tuto/closures).
 
 Functionality of GUI:
 * **poll_server**: polls server continuously to check whether other player has made a move
