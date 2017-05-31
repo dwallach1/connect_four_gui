@@ -164,6 +164,7 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let k_adjustment: Adjustment = selection_game_builder.get_object("k_adjustment").unwrap();
 	let h_adjustment: Adjustment = selection_game_builder.get_object("height_adjustment").unwrap();
 	let w_adjustment: Adjustment = selection_game_builder.get_object("width_adjustment").unwrap();
+	let warning_label: Label = selection_game_builder.get_object("warning_label").unwrap();
 
 	let mut title_text = "Server address: ".to_string();
 	title_text.push_str(&ip_addr.clone());
@@ -172,8 +173,12 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
+
 	let ip_copy = ip_addr.clone();
+	let ip_copy2 = ip_copy.clone();
 	let window_copy = selection_window.clone();
+	let combo_copy = combo_box.clone();
+	let warning_copy = warning_label.clone();
 
 	// activate join game button
 	let join_btn: Button = selection_game_builder.get_object("join_btn").unwrap();
@@ -190,7 +195,6 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		}
 	});
 	let create_btn: Button = selection_game_builder.get_object("create_btn").unwrap();
-	let warning_label: Label = selection_game_builder.get_object("warning_label").unwrap();
 	create_btn.connect_clicked(move |_| {
 
 		let client = Client::new();
@@ -220,7 +224,21 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		
 	});
 
-
+	let refresh_btn: Button = selection_game_builder.get_object("refresh_btn").unwrap();
+	refresh_btn.connect_clicked(move |_| {
+		let game_ids = connect_to_server(&ip_copy2.clone());
+		match game_ids {
+			Ok(g_ids) => {
+				combo_copy.remove_all();
+				for g in g_ids {
+					combo_copy.append_text(&g);
+				}
+			},
+			Err(e) => {
+				warning_copy.set_text(&e);
+			}
+		}
+	});
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
