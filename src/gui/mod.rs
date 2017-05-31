@@ -1,6 +1,9 @@
 //! # Connect-K Client Side GUI
-//! Note that "cloning a Gtk-rs object only cost a pointer copy, so it’s not a problem." - GTK-rs documentation
-//! this allows us to move data into closures to achieve our client-server functionality
+//! Builds the Client Side GUI of the ConnectK class.
+//!
+//! Note that "cloning a Gtk-rs object only cost a pointer copy, so it’s not a problem." - GTK-rs documentation.
+//! This allows us to move data into closures to achieve our client-server functionality.
+//!
 //!  GTK+ is not thread-safe. Accordingly, none of this crate's structs implement Send or Sync.
 use gtk::*;
 use hyper::Client;
@@ -13,25 +16,23 @@ use std::time::Duration;
 use std::thread::sleep;
 
 
-// TODOS:
-//		Radiovec deselct all from updategui [DONE]
-// 		Process end game State 
-// 		Display user message when game is over
-// ---------------------------------------------------
-//      Add documentation to ConnectK library 
-//		Clean-up / refactor code 
-// 		
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
 	One,
 	Two,
 }
 
-// poll_server
-// used inside a loop to send requests to get the status of the game 
-// sleeps for 3 seconds after each call to avoid excessive waste of resources
-fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
+/// Sends requests to game server for specified game to determine whether opposing player has made a move.
+/// # Examples
+/// ```
+/// let game_id = 0;
+/// let ip_address = "127.0.0.1:8080";
+/// // 3x3 empty board = "000000000"
+/// if poll_server(game_id, &ip_address, board) {
+/// 	// other player has completed their turn, respond accordingly	
+/// }
+/// ```
+pub fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let client = Client::new(); 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id);	
 	let server_board: String;
@@ -47,10 +48,15 @@ fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	false
 }
 
-// play_move
-// plays the move specified by user
-// returns the board (string) of the updated board
-fn play_move(col: usize, id: usize, ip_addr: &str) -> String {
+/// Plays the move specified by user.
+/// Returns the board (string) of the updated board.
+/// # Examples
+/// ```
+/// //3x3 empty board = "000000000"
+/// let new_board = play_move(0, CURRENT_GAME_ID, 127.0.0.1:8080);
+/// //board = "100000000"
+/// ```
+pub fn play_move(col: usize, id: usize, ip_addr: &str) -> String {
 	let client = Client::new();   
 
 	// get before board                              
@@ -79,9 +85,18 @@ fn play_move(col: usize, id: usize, ip_addr: &str) -> String {
 	post_board
 }
 
-// get_game
-// gets game info from game server for specified game_id
-fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
+/// Gets game info from game server for specified game_id.
+/// # Examples
+/// ```
+/// let ip_address = "127.0.0.1:8080";
+/// let game_id = "0";
+/// let game_info_req = get_game(&game_id, &ip_address);
+/// //get resulting JSON
+/// if let Some(game_info) = game_info_req {
+///		let game_value: Value = from_reader(game_info).expect("Unable to parse response!");
+/// }
+/// ```
+pub fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 	let client = Client::new();
 
 	let url = &format!("http://{}/api/connect_four.svc/Games({})", ip_addr, game_id); 
@@ -94,11 +109,8 @@ fn get_game(game_id: &str, ip_addr: &str) -> Result<Response, &'static str> {
 }
 
 
-// fn end_game(player: Player, )
-
-// update_board_gui
-// updates the board GUI based on current board
-fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
+/// Updates the board GUI based on current board state.
+pub fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &Vec<RadioButton>) {
 
 	let mut columns = vec![];
 	let mut board_cp = board.clone().to_string();
@@ -140,10 +152,9 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 	}
 }
 
-// build_selection_game_window
-// builds the parts of the GUI that allows user to select a game and create a game
-// only games that can be joined are displayed
-fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
+/// Builds the parts of the GUI that allows user to select a game and create a game.
+/// Only games that can be joined are displayed.
+pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let select_src = include_str!("selection_window.glade");
 	let selection_game_builder = Builder::new_from_string(select_src);
 	let selection_window: Window = selection_game_builder.get_object("selection_window").unwrap();
@@ -213,9 +224,8 @@ fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 }
 
 
-// build_game_window
-// builds game window with connect four board and play game button
-fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
+/// Builds game window with ConnectK board and play game button.
+pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	let game_info_res = get_game(&game_id, &ip_addr);
 	if game_info_res.is_err() {
 		println!("Error getting game");
@@ -376,9 +386,16 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	});
 }
 
-// connect_to_server
-// connects to game server to get information about current games & how to create new game
-fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
+/// Connects to game server to get information about current, joinable games.
+/// # Examples
+/// ```
+/// let ip_address = "127.0.0.1:8080";
+/// if let Some(game_ids) = connect_to_server(&ip_address) {
+///		// succesfully connected to server
+///		// use game_ids accordingly
+/// }
+/// ```
+pub fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 	let client = Client::new();
 	let mut url = "http://".to_string();
 	url.push_str(ip_addr);
@@ -414,9 +431,7 @@ fn connect_to_server(ip_addr: &str) -> Result<Vec<String>, &'static str> {
 
 }
 
-// launch
-// launches game GUI
-// validates entered IP address
+/// Launches game GUI.
 pub fn launch() {     
 
 	// first step: initalize GTK
