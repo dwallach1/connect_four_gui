@@ -120,12 +120,12 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 		for (row_index, c) in col.chars().enumerate() {
 			//if player 1 => put in a blue piece
 			if c == '1' {
-				let blue_piece = Image::new_from_file("blue_piece.png");
+				let blue_piece = Image::new_from_file("imgs/blue_piece.png");
 				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
 			}
 			//if player 2 => put in a red piece
 			else if c == '2' {
-				let red_piece = Image::new_from_file("red_piece.png");
+				let red_piece = Image::new_from_file("imgs/red_piece.png");
 				board_grid.attach(&red_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
 			}
 			//disable column if full
@@ -134,7 +134,7 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 			}
 		}
 	}
-
+	// set the radio button to the first non-full column
 	for r in radio_vec {
 		if r.get_sensitive() == true { r.set_active(true); break;}
 	}
@@ -246,7 +246,7 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	// set names and pictures of starting board
 	for i in 0..width {
 		for j in 0..height {
-			let image = Image::new_from_file("empty.png");
+			let image = Image::new_from_file("imgs/empty.png");
 			let mut name = i.to_string();
 			name.push_str(",");
 			name.push_str(&j.to_string());
