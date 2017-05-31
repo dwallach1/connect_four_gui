@@ -118,15 +118,14 @@ fn update_board_gui(height: usize, board: &str, board_grid: &Grid, radio_vec: &V
 		let col = columns[col_index].clone();
 		println!("{}",col);
 		for (row_index, c) in col.chars().enumerate() {
-			println!("c: {}", c);
-			println!("col_index: {}", col_index);
-			println!("row_index: {}", row_index);
-			println!("final product: {}", height-row_index-1);
+			// println!("c: {}", c);
+			// println!("col_index: {}", col_index);
+			// println!("row_index: {}", row_index);
+			// println!("final product: {}", height-row_index-1);
 			//if player 1 => put in a blue piece
 			if c == '1' {
 				let blue_piece = Image::new_from_file("blue_piece.png");
 				board_grid.attach(&blue_piece, col_index as i32, (height - row_index - 1) as i32, 1, 1);
-				println!("got here dude");
 			}
 			//if player 2 => put in a red piece
 			else if c == '2' {
@@ -313,7 +312,17 @@ fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 					else {
 						pb.set_sensitive(true);
 						let res = get_game(&g.to_string(), &i.clone()).unwrap();
-						let data: Value = from_reader(res).expect("Unable to parse response!");   
+						let data: Value = from_reader(res).expect("Unable to parse response!");
+						let game_status = data["status"].to_string();
+						if game_status != "InProcess" {
+							match game_status.as_str() {
+								"PlayerOneWin" => {},
+								"PlayerTwoWin" => {},
+								_ 		   => {},
+
+							}
+							println!("GAME OVER DAB");
+						}
 						let new_new_board = data["board"].to_string();
 						update_board_gui(h, &new_new_board[1..new_new_board.len()-1], &gb, &rv);
 						gw.show_all();
