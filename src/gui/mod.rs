@@ -224,6 +224,7 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 		
 	});
 
+	//refreshes list of games that player can join
 	let refresh_btn: Button = selection_game_builder.get_object("refresh_btn").unwrap();
 	refresh_btn.connect_clicked(move |_| {
 		let game_ids = connect_to_server(&ip_copy2.clone());
@@ -327,8 +328,6 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
  	k_text.push_str(&k.to_string());
  	k_text.push_str(" to win!");
  	connect_label.set_text(&k_text);
- 	// let k_label = Label::new(Some(k_string.as_str()));
- 	// side_box.pack_start(&k_label, true, true, 0);
 
 
  	// used to indicate game over 
@@ -434,6 +433,7 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	});
 }
 
+/// Builds window in GUI that outputs the winner.
 fn build_game_over_window(status: &str) -> String {
 	let over_src = include_str!("game_over_window.glade");
 	let over_game_builder = Builder::new_from_string(over_src);
