@@ -43,7 +43,7 @@ pub fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let server_board = data["board"].to_string();
 	println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
 	if board == server_board && game_status == "InProcess" {
-		sleep(Duration::new(3, 0));
+		sleep(Duration::new(2, 0));
 		return true;
 	} 
 	println!("Done polling");
