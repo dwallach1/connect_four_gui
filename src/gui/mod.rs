@@ -17,7 +17,6 @@ use std::thread::sleep;
 
 //TODO:
 // refresh button on the join page 
-// Configure windows?
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Player {
@@ -41,10 +40,9 @@ pub fn poll_server(game_id: usize, ip_addr: &str, board: &str) -> bool {
 	let response = client.get(url).send().unwrap();
 	let data: Value = from_reader(response).expect("Unable to parse response!");
 	let game_status = data["status"].as_str().unwrap();
-	if game_status != "InProcess" {	return false; }	
 	let server_board = data["board"].to_string();
 	println!("Polling: -- curr board is: {} server_board is {}", board, server_board);
-	if board == server_board {
+	if board == server_board && game_status == "InProcess" {
 		sleep(Duration::new(3, 0));
 		return true;
 	} 
@@ -167,10 +165,15 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	let h_adjustment: Adjustment = selection_game_builder.get_object("height_adjustment").unwrap();
 	let w_adjustment: Adjustment = selection_game_builder.get_object("width_adjustment").unwrap();
 
+	let mut title_text = "Server address: ".to_string();
+	title_text.push_str(&ip_addr.clone());
+	selection_window.set_title(&title_text);
+
 	for g in game_ids {
 		combo_box.append_text(&g);
 	}
 	let ip_copy = ip_addr.clone();
+	let window_copy = selection_window.clone();
 
 	// activate join game button
 	let join_btn: Button = selection_game_builder.get_object("join_btn").unwrap();
@@ -221,8 +224,7 @@ pub fn build_selection_game_window(game_ids: Vec<String>, ip_addr: String) {
 	// add closure to quit application when this button is pressed
 	let quit_btn: Button = selection_game_builder.get_object("cancel_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
-		main_quit();
-    	Inhibit(false);
+		window_copy.close();
 	});
 	selection_window.show_all();
 }
@@ -319,6 +321,7 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 
 	// render everything	
 	game_window.show_all();
+	let game_window_copy = game_window.clone();
 
 	let g_id: usize = game_id.parse().unwrap();
 	
@@ -327,18 +330,18 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	// poll the server and update board after new move is played
 	if (player_turn == "1" && pid == Player::Two) || (player_turn == "2" && pid == Player::One) {
 		 
-		 // clone all necessary variables to move into idle closure
-		 let g = g_id.clone();
-		 let i = ip_addr.clone();
-		 let b = board.clone();
-		 let h = height.clone();
-		 let gb = game_board.clone();
-		 let pb = play_button.clone();
-		 let rv = radio_vec.clone();
-		 let gw = game_window.clone();
-		 pb.set_sensitive(false);
+		// clone all necessary variables to move into idle closure
+		let g = g_id.clone();
+		let i = ip_addr.clone();
+		let b = board.clone();
+		let h = height.clone();
+		let gb = game_board.clone();
+		let pb = play_button.clone();
+		let rv = radio_vec.clone();
+		let gw = game_window.clone();
+		pb.set_sensitive(false);
 
-		 idle_add(move || { 
+		idle_add(move || { 
 					let c = poll_server(g, &i, &b); 
 					if c  {  return Continue(true); }
 					else {
@@ -409,8 +412,7 @@ pub fn build_game_window(game_id: &str, pid: Player, ip_addr: String) {
 	// connect quit event if user wants to exit 
 	let quit_btn: Button = game_builder.get_object("quit_btn").unwrap();
 	quit_btn.connect_clicked(move |_| {
-		main_quit();
-    	Inhibit(false);
+		game_window_copy.close();
 	});
 }
 
